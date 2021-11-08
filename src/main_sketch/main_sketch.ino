@@ -3,22 +3,22 @@
 // the setup function runs once when you press reset or power the board
 void setup() {
   
-  controller_Mailbox=xQueueCreate(1, sizeof(int));
-  AnalogRead_Mailbox=xQueueCreate(1, sizeof(int));
+  controller_Mailbox=xQueueCreate(1, sizeof(msg_union));
+  actuators_Mailbox=xQueueCreate(1, sizeof(msg_union));
   Serial.begin(9600);
   Serial.println("Initiallizing Setup........");
   
   xTaskCreate(
     controller
-    , "Blink" // A name just for humans
+    , "actuators" // A name just for humans
     , 128 // This stack size can be checked & adjusted by reading the Stack Highwater
     , NULL
     , 1 // Priority, with 1 being the highest, and 4 being the lowest.
     , NULL );
 
   xTaskCreate(
-    TaskAnalogRead
-    ,"AnalogRead"
+    actuators
+    ,"actuators"
     , 128 // Stack size
     , NULL
     , 1 // Priority
