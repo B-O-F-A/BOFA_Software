@@ -5,6 +5,8 @@ void setup() {
   
   controller_Mailbox=xQueueCreate(1, sizeof(msg_union));
   actuators_Mailbox=xQueueCreate(1, sizeof(msg_union));
+  stepper_Mailbox=xQueueCreate(2, sizeof(msg_union));
+  
   Serial.begin(9600);
   Serial.println("Initiallizing Setup........");
   
@@ -23,6 +25,14 @@ void setup() {
     , NULL
     , 1 // Priority
     , NULL );
+  
+  xTaskCreate(
+    stepper
+    ,"StepperTask"
+    , 128 // Stack size
+    , NULL
+    , 1 // Priority
+    , NULL );
 
   Serial.println("setup complete: starting.....");
   // Now the task scheduler, which takes over control of scheduling individual tasks, is automatically started.
@@ -35,32 +45,3 @@ void loop()
   //Serial.println("Initiallizing Setup........");
   //taskYIELD();
 }
-
-//
-//void TaskAnalogRead(void *pvParameters)
-//{
-//  (void) pvParameters;
-//  // initialize serial communication at 9600 bits per second:
-//  int recieved_val = 0;
-//  for (;;)
-//  {
-//    if(xQueueReceive(AnalogRead_Mailbox,&recieved_val,portMAX_DELAY) == pdPASS ){
-//      Serial.print(millis());
-//      Serial.print("          ");
-//      Serial.println(recieved_val);
-//    }
-//  }
-//}
-//
-//void controller(void *pvParameters)
-//{
-//  (void) pvParameters;
-//
-//  //char buff[100];
-//  for (;;)
-//  {
-//    int time1 = millis();
-//    xQueueSend(AnalogRead_Mailbox,&time1,portMAX_DELAY);
-//    vTaskDelay(30);
-//  }
-//}
