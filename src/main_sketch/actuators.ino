@@ -17,8 +17,8 @@ void actuators(void *pvParameters)
 
   msg_union msg;
 
-  const int CLOSE_GATE_STEPS = -1 * (2052 / 360) * 160; //Rotating -160 degrees
-  const int OPEN_GATE_STEPS = 1 * (2052 / 360) * 160; //Rotating 160 degrees
+  const int CLOSE_GATE_STEPS = -1 * (2052 / 360) * 90; //Rotating -90 degrees
+  const int OPEN_GATE_STEPS = 1 * (2052 / 360) * 90; //Rotating 90 degrees
 
 
   for (;;)
