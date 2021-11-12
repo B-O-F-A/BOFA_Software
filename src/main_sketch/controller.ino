@@ -22,7 +22,11 @@ void controller(void *pvParameters)
     stepper_msg_counter++;
     
     coutner++;
-    coutner%=100;
+    if (coutner > 40){
+      msg.motor_message.spd = 80 - coutner;
+    }
+    coutner%=80;
+    
     Serial.println(msg.motor_message.step_dir);
     xQueueSend(actuators_Mailbox,&msg,portMAX_DELAY);
     vTaskDelay(pdMS_TO_TICKS(200));

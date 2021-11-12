@@ -1,14 +1,13 @@
-void send_to_stepper(int desSteps) {
-  Serial.print("Msg Sent to Stepper: ");
-  Serial.println(desSteps);
 
-  msg_union msg;
-  msg.stepper_message.type = MSG_STEPPER;
-  msg.stepper_message.timestamp = millis();
-  msg.stepper_message.steps = desSteps;
+// Left Motor
+  const int pwmA = 4;
+  const int in1A = 2;
+  const int in2A = 3;
 
-  xQueueSend(stepper_Mailbox, &msg, portMAX_DELAY);
-}
+  // Right Motor
+  const int pwmB = 45;
+  const int in1B = 46;
+  const int in2B = 47;
 
 void actuators(void *pvParameters)
 {
@@ -17,10 +16,21 @@ void actuators(void *pvParameters)
 
   msg_union msg;
 
-  const int CLOSE_GATE_STEPS = -1 * (2052 / 360) * 90; //Rotating -90 degrees
-  const int OPEN_GATE_STEPS = 1 * (2052 / 360) * 90; //Rotating 90 degrees
+  const int CLOSE_GATE_STEPS = (int)(-1 * 90* (2052 / 360.0)); //Rotating -90 degrees
+  const int OPEN_GATE_STEPS = (int)(1 *  90 * (2052 / 360.0)); //Rotating 90 degrees
 
+  // Motor Speed Values - Start at zero
+  int MotorSpeedL = 0;
+  int MotorSpeedR = 0;
 
+  // Set all the motor control pins to outputs
+  pinMode(pwmA, OUTPUT);
+  pinMode(pwmB, OUTPUT);
+  pinMode(in1A, OUTPUT);
+  pinMode(in2A, OUTPUT);
+  pinMode(in1B, OUTPUT);
+  pinMode(in2B, OUTPUT);
+  
   for (;;)
   {
     if (xQueueReceive(actuators_Mailbox, &msg, portMAX_DELAY) == pdPASS ) {
@@ -42,7 +52,12 @@ void actuators(void *pvParameters)
             case OPEN_GATE:
               send_to_stepper(OPEN_GATE_STEPS);
           }
-          
+
+          run_motors(motor_message->spd, motor_message->dir);
+
+          //run_motors(30, FORWARD);
+
+
           break;
 
         default:
@@ -53,4 +68,68 @@ void actuators(void *pvParameters)
     }
 
   }
+}
+void run_motors(uint8_t spd, direction_type_e dir) {
+  int PWM_L = 255 * spd / 100;
+  int PWM_R = 255 * spd / 100;
+
+  switch (dir) {
+    case STOP:
+      PWM_L = 0;
+      PWM_R = 0;
+      break;
+
+    case FORWARD:
+      set_motor_left_forward();
+      set_motor_right_forward();     
+      break;
+
+    case BACKWARD:
+      set_motor_left_backward();
+      set_motor_right_backward();
+      break;
+
+    case LEFT:
+      set_motor_left_backward();
+      set_motor_right_forward();
+      break;
+
+    case RIGHT:
+      set_motor_left_forward();
+      set_motor_right_backward();
+
+  }
+
+  analogWrite(pwmA, PWM_L);
+  analogWrite(pwmB, PWM_R);
+
+}
+
+void send_to_stepper(int desSteps) {
+  Serial.print("Msg Sent to Stepper: ");
+  Serial.println(desSteps);
+
+  msg_union msg;
+  msg.stepper_message.type = MSG_STEPPER;
+  msg.stepper_message.timestamp = millis();
+  msg.stepper_message.steps = desSteps;
+
+  xQueueSend(stepper_Mailbox, &msg, portMAX_DELAY);
+}
+
+void set_motor_left_forward(){
+  digitalWrite(in1A, HIGH);
+  digitalWrite(in2A, LOW);
+}
+void set_motor_left_backward(){
+  digitalWrite(in1A, LOW);
+  digitalWrite(in2A, HIGH);
+}
+void set_motor_right_forward(){
+  digitalWrite(in1B, HIGH);
+  digitalWrite(in2B, LOW);
+}
+void set_motor_right_backward(){
+  digitalWrite(in1B, LOW);
+  digitalWrite(in2B, HIGH);
 }
