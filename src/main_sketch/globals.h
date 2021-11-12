@@ -1,5 +1,8 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
+
+#define debugEnabled false
+
 //includes
 #include <Arduino_FreeRTOS.h>
 #include <queue.h>

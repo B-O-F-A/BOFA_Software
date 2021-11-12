@@ -5,9 +5,9 @@
   const int in2A = 3;
 
   // Right Motor
-  const int pwmB = 45;
-  const int in1B = 46;
-  const int in2B = 47;
+  const int pwmB = 5;
+  const int in1B = 6;
+  const int in2B = 7;
 
 void actuators(void *pvParameters)
 {
@@ -38,11 +38,12 @@ void actuators(void *pvParameters)
         case MSG_MOTOR:   //motor control port
           motor_message_t* motor_message;
           motor_message = &msg.motor_message;
+          
           //Serial.print(motor_message->type);//there is currently an error interperating this
           //Serial.print("  ");
-          Serial.print(motor_message->spd);
-          Serial.print("  motor step direction ");
-          Serial.println(motor_message->step_dir);
+          //Serial.print(motor_message->spd);
+          //Serial.print("  motor step direction ");
+          //Serial.println(motor_message->step_dir);
 
           switch (motor_message->step_dir) {
             case CLOSE_GATE:
@@ -100,14 +101,14 @@ void run_motors(uint8_t spd, direction_type_e dir) {
 
   }
 
-  analogWrite(pwmA, PWM_L);
-  analogWrite(pwmB, PWM_R);
+  bofa_analogWrite(pwmA, PWM_L);
+  bofa_analogWrite(pwmB, PWM_R);
 
 }
 
 void send_to_stepper(int desSteps) {
-  Serial.print("Msg Sent to Stepper: ");
-  Serial.println(desSteps);
+  //Serial.print("Msg Sent to Stepper: ");
+  //Serial.println(desSteps);
 
   msg_union msg;
   msg.stepper_message.type = MSG_STEPPER;
@@ -115,6 +116,23 @@ void send_to_stepper(int desSteps) {
   msg.stepper_message.steps = desSteps;
 
   xQueueSend(stepper_Mailbox, &msg, portMAX_DELAY);
+}
+
+void bofa_analogWrite(int pin, int PWM_Signal){
+  if (debugEnabled){
+    Serial.print("PWM_Pin: ");
+    Serial.println(pin);
+    Serial.print(" PWM_Signal: ");
+    Serial.println(PWM_Signal);
+
+    int motor_speed = PWM_Signal*100/255;
+
+    Serial.print(" Speed: ");
+    Serial.println(motor_speed);
+  }
+  else{
+    analogWrite(pin, PWM_Signal);
+  }
 }
 
 void set_motor_left_forward(){
