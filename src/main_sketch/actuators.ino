@@ -1,13 +1,13 @@
 
 // Left Motor
-  const int pwmA = 4;
-  const int in1A = 2;
-  const int in2A = 3;
+const int pwmA = 4;
+const int in1A = 2;
+const int in2A = 3;
 
-  // Right Motor
-  const int pwmB = 5;
-  const int in1B = 6;
-  const int in2B = 7;
+// Right Motor
+const int pwmB = 5;
+const int in1B = 6;
+const int in2B = 7;
 
 void actuators(void *pvParameters)
 {
@@ -16,7 +16,7 @@ void actuators(void *pvParameters)
 
   msg_union msg;
 
-  const int CLOSE_GATE_STEPS = (int)(-1 * 90* (2052 / 360.0)); //Rotating -90 degrees
+  const int CLOSE_GATE_STEPS = (int)(-1 * 90 * (2052 / 360.0)); //Rotating -90 degrees
   const int OPEN_GATE_STEPS = (int)(1 *  90 * (2052 / 360.0)); //Rotating 90 degrees
 
   // Motor Speed Values - Start at zero
@@ -30,7 +30,7 @@ void actuators(void *pvParameters)
   pinMode(in2A, OUTPUT);
   pinMode(in1B, OUTPUT);
   pinMode(in2B, OUTPUT);
-  
+
   for (;;)
   {
     if (xQueueReceive(actuators_Mailbox, &msg, portMAX_DELAY) == pdPASS ) {
@@ -38,7 +38,7 @@ void actuators(void *pvParameters)
         case MSG_MOTOR:   //motor control port
           motor_message_t* motor_message;
           motor_message = &msg.motor_message;
-          
+
           //Serial.print(motor_message->type);//there is currently an error interperating this
           //Serial.print("  ");
           //Serial.print(motor_message->spd);
@@ -82,7 +82,7 @@ void run_motors(uint8_t spd, direction_type_e dir) {
 
     case FORWARD:
       set_motor_left_forward();
-      set_motor_right_forward();     
+      set_motor_right_forward();
       break;
 
     case BACKWARD:
@@ -118,36 +118,39 @@ void send_to_stepper(int desSteps) {
   xQueueSend(stepper_Mailbox, &msg, portMAX_DELAY);
 }
 
-void bofa_analogWrite(int pin, int PWM_Signal){
-  if (debugEnabled){
-    Serial.print("PWM_Pin: ");
-    Serial.println(pin);
-    Serial.print(" PWM_Signal: ");
-    Serial.println(PWM_Signal);
+void bofa_analogWrite(int pin, int PWM_Signal) {
+  if (debugEnabled) {
+    if (debugActuatorsEnabled) {
+      Serial.print("Actuators: ");
+      Serial.print("PWM_Pin: ");
+      Serial.print(pin);
+      Serial.print(" PWM_Signal: ");
+      Serial.print(PWM_Signal);
 
-    int motor_speed = PWM_Signal*100/255;
+      int motor_speed = PWM_Signal * 100 / 255;
 
-    Serial.print(" Speed: ");
-    Serial.println(motor_speed);
+      Serial.print(" Speed: ");
+      Serial.println(motor_speed);
+    }
   }
-  else{
+  else {
     analogWrite(pin, PWM_Signal);
   }
 }
 
-void set_motor_left_forward(){
+void set_motor_left_forward() {
   digitalWrite(in1A, HIGH);
   digitalWrite(in2A, LOW);
 }
-void set_motor_left_backward(){
+void set_motor_left_backward() {
   digitalWrite(in1A, LOW);
   digitalWrite(in2A, HIGH);
 }
-void set_motor_right_forward(){
+void set_motor_right_forward() {
   digitalWrite(in1B, HIGH);
   digitalWrite(in2B, LOW);
 }
-void set_motor_right_backward(){
+void set_motor_right_backward() {
   digitalWrite(in1B, LOW);
   digitalWrite(in2B, HIGH);
 }

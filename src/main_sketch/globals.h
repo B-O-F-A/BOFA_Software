@@ -1,7 +1,8 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#define debugEnabled false
+#define debugEnabled true
+#define debugActuatorsEnabled false
 
 //includes
 #include <Arduino_FreeRTOS.h>
@@ -36,6 +37,7 @@ typedef enum{
   MSG_GENERIC,
   MSG_MOTOR,
   MSG_STEPPER,
+  MSG_ULTRASONIC,
   MSG_TIMER,
   
   //add messages types before this message
@@ -63,6 +65,12 @@ typedef struct{
 typedef struct{
   message_type_e type;
   uint32_t timestamp; // time this message was generated
+  float dist; //distance to object in cm
+}ultrasonic_message_t;
+
+typedef struct{
+  message_type_e type;
+  uint32_t timestamp; // time this message was generated
   const char* timer_name;
 }timer_message_t;
 
@@ -70,16 +78,18 @@ typedef union{
   generic_message_t generic_message;
   motor_message_t motor_message;
   stepper_message_t stepper_message;
+  ultrasonic_message_t ultrasonic_message;
   timer_message_t timer_message;
 }msg_union;
 
 void controller( void *pvParameters );
 void actuators( void *pvParameters );
 void stepper( void *pvParameters );
-void TaskAnalogRead( void *pvParameters );
+void ultrasonic( void *pvParameters );
 
 static QueueHandle_t controller_Mailbox;
 static QueueHandle_t actuators_Mailbox;
 static QueueHandle_t stepper_Mailbox;
+static QueueHandle_t ultrasonic_Mailbox;
 
 #endif

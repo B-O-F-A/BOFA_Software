@@ -18,11 +18,11 @@ void moveForward(int setSteps) {
 }
 
 void freeze() {
-  
-    for (stepperPinCount = 3; stepperPinCount >= 0; stepperPinCount--) {
-      digitalWrite(StepperPins[stepperPinCount], 0);
-    }
-  
+
+  for (stepperPinCount = 3; stepperPinCount >= 0; stepperPinCount--) {
+    digitalWrite(StepperPins[stepperPinCount], 0);
+  }
+
 }
 void moveBackward(int setSteps) {
 
@@ -34,27 +34,33 @@ void moveBackward(int setSteps) {
     for (stepperPinCount = 3; stepperPinCount >= 0; stepperPinCount--) {
       digitalWrite(StepperPins[3 - stepperPinCount], stepperSignal >> stepperPinCount & 0x01);
     }
-    
+
     delay(3);
   }
 }
 
-void stepper_delay(uint32_t set_delay){
+void stepper_delay(uint32_t set_delay) {
   uint32_t start_time = millis();
-  while((millis() - start_time) < set_delay){
-    taskYIELD(); 
+  while ((millis() - start_time) < set_delay) {
+    taskYIELD();
   }
 }
 
 void move_stepper(int received_Steps) {
   if (received_Steps < 0) {
     moveBackward(abs(received_Steps));
-    Serial.println("Finished Moving Backward");
+    if (debugEnabled) {
+      Serial.print("Stepper: ");
+      Serial.println("Finished Moving Backward");
+    }
     freeze();
   }
-  else if (received_Steps > 0){
+  else if (received_Steps > 0) {
     moveForward(received_Steps);
-    Serial.println("Finished Moving Forward");
+    if (debugEnabled) {
+      Serial.print("Stepper: ");
+      Serial.println("Finished Moving Forward");
+    }
     freeze();
   }
 
@@ -63,15 +69,15 @@ void move_stepper(int received_Steps) {
 void stepper(void *pvParameters)
 {
   (void) pvParameters;
-  
+
   for (stepperPinCount = 0; stepperPinCount < 4; stepperPinCount++) {
     pinMode(StepperPins[stepperPinCount], OUTPUT);
   }
 
   msg_union msg;
-  
+
   freeze();
-  
+
   for (;;)
   {
 

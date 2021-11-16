@@ -6,13 +6,14 @@ void setup() {
   controller_Mailbox=xQueueCreate(1, sizeof(msg_union));
   actuators_Mailbox=xQueueCreate(1, sizeof(msg_union));
   stepper_Mailbox=xQueueCreate(1, sizeof(msg_union));
+  ultrasonic_Mailbox=xQueueCreate(1, sizeof(msg_union));
   
   Serial.begin(9600);
   Serial.println("Initiallizing Setup........");
   
   xTaskCreate(
     controller
-    , "actuators" // A name just for humans
+    , "controller" // A name just for humans
     , 128 // This stack size can be checked & adjusted by reading the Stack Highwater
     , NULL
     , 1 // Priority, with 1 being the highest, and 4 being the lowest.
@@ -29,6 +30,14 @@ void setup() {
   xTaskCreate(
     stepper
     ,"StepperTask"
+    , 128 // Stack size
+    , NULL
+    , 1 // Priority
+    , NULL );
+
+    xTaskCreate(
+    ultrasonic
+    ,"ultrasonic"
     , 128 // Stack size
     , NULL
     , 1 // Priority
