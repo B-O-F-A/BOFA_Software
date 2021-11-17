@@ -1,19 +1,21 @@
 void controller(void *pvParameters)
 {
   (void) pvParameters;
-
+  int HIGH_SPEED = 60;
+  int MED_SPEED = 30;
+  int HIGH_SPEED_ROT = 90;
+  int MED_SPEED_ROT = 90;
+  
   int counter = 0;
   int stepper_msg_counter = 0;
-  int motor_speed = 80;
+  int motor_speed = HIGH_SPEED_ROT;
   msg_union ultrasonic_msg;
   msg_union msg;
-  msg.motor_message.dir = FORWARD;
+  msg.motor_message.dir = RIGHT;
 
-int HIGH_SPEED = 80;
-int MED_SPEED = 65;
 
-int HIGH_SPEED_ROT = 70;
-int MED_SPEED_ROT = 55;
+
+
 
   for (;;)
   {
@@ -42,66 +44,66 @@ int MED_SPEED_ROT = 55;
     msg.motor_message.timestamp = millis();
     msg.motor_message.step_dir = STEPPER_MOVE_NONE;
 
-    //FORWARD SPIKE
-    if (counter == secs_to_count(1)) {
-      msg.motor_message.dir = FORWARD;
-      motor_speed = MED_SPEED;
-    }
-
-    //STOP
-    if (counter == secs_to_count(3)) {
-      msg.motor_message.dir = STOP;
-    }
-
-    //BACKWARD SPIKE
-    if (counter == secs_to_count(4)) {
-      msg.motor_message.dir = BACKWARD;
-      motor_speed = HIGH_SPEED;
-    }
-
-    if (counter == secs_to_count(5)) {
-      msg.motor_message.dir = BACKWARD;
-      motor_speed = MED_SPEED;
-    }
-
-    //STOP
-    if (counter == secs_to_count(7)) {
-      msg.motor_message.dir = STOP;
-    }
+//    //FORWARD SPIKE
+//    if (counter == secs_to_count(1)) {
+//      msg.motor_message.dir = FORWARD;
+//      motor_speed = MED_SPEED;
+//    }
+//
+//    //STOP
+//    if (counter == secs_to_count(3)) {
+//      msg.motor_message.dir = STOP;
+//    }
+//
+//    //BACKWARD SPIKE
+//    if (counter == secs_to_count(4)) {
+//      msg.motor_message.dir = BACKWARD;
+//      motor_speed = HIGH_SPEED;
+//    }
+//
+//    if (counter == secs_to_count(5)) {
+//      msg.motor_message.dir = BACKWARD;
+//      motor_speed = MED_SPEED;
+//    }
+//
+//    //STOP
+//    if (counter == secs_to_count(7)) {
+//      msg.motor_message.dir = STOP;
+//    }
 
 
     //RIGHT SPIKE
-    if (counter == secs_to_count(8)) {
+    if (counter == secs_to_count(8-7)) {
       msg.motor_message.dir = RIGHT;
       motor_speed = HIGH_SPEED_ROT;
     }
 
-    if (counter == secs_to_count(9)) {
+    if (counter == secs_to_count(9-7)) {
       msg.motor_message.dir = RIGHT;
       motor_speed = MED_SPEED_ROT;
     }
 
 
     //STOP
-    if (counter == secs_to_count(11)) {
+    if (counter == secs_to_count(11-7)) {
       msg.motor_message.dir = STOP;
     }
 
 
     //LEFT SPIKE
-    if (counter == secs_to_count(12)) {
+    if (counter == secs_to_count(12-7)) {
       msg.motor_message.dir = LEFT;
       motor_speed = HIGH_SPEED_ROT;
     }
 
-    if (counter == secs_to_count(13)) {
+    if (counter == secs_to_count(13-7)) {
       msg.motor_message.dir = LEFT;
       motor_speed = MED_SPEED_ROT;
     }
 
 
     //STOP
-    if (counter == secs_to_count(15)) {
+    if (counter == secs_to_count(15-7)) {
       msg.motor_message.dir = STOP;
     }
 

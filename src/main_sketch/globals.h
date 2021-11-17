@@ -1,8 +1,8 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#define DEBUG_ENABLED true
-#define DEBUG_ACTUATORS_ENABLED true
+#define DEBUG_ENABLED false
+#define DEBUG_ACTUATORS_ENABLED false
 
 //includes
 #include <Arduino_FreeRTOS.h>
@@ -19,8 +19,8 @@ const int in1A = 9;
 const int in2A = 10;
 
 // Right Motor Pins
-const int in1B = 11;
-const int in2B = 12;
+const int in1B = 12;
+const int in2B = 11;
 const int pwmB = 13;
 
 //Stepper Motor Pins
