@@ -2,15 +2,17 @@
 
 // the setup function runs once when you press reset or power the board
 void setup() {
-  
-  controller_Mailbox=xQueueCreate(1, sizeof(msg_union));
-  actuators_Mailbox=xQueueCreate(1, sizeof(msg_union));
-  stepper_Mailbox=xQueueCreate(1, sizeof(msg_union));
-  ultrasonic_Mailbox=xQueueCreate(1, sizeof(msg_union));
-  
+
+  controller_Mailbox = xQueueCreate(1, sizeof(msg_union));
+  actuators_Mailbox = xQueueCreate(1, sizeof(msg_union));
+  stepper_Mailbox = xQueueCreate(1, sizeof(msg_union));
+  ultrasonic_Mailbox = xQueueCreate(1, sizeof(msg_union));
+  colour_Mailbox = xQueueCreate(1, sizeof(msg_union));
+  imu_Mailbox = xQueueCreate(1, sizeof(msg_union));
+
   Serial.begin(9600);
   Serial.println("Initiallizing Setup........");
-  
+
   xTaskCreate(
     controller
     , "controller" // A name just for humans
@@ -21,27 +23,35 @@ void setup() {
 
   xTaskCreate(
     actuators
-    ,"actuators"
-    , 128 // Stack size
-    , NULL
-    , 1 // Priority
-    , NULL );
-  
-  xTaskCreate(
-    stepper
-    ,"StepperTask"
+    , "actuators"
     , 128 // Stack size
     , NULL
     , 1 // Priority
     , NULL );
 
-    xTaskCreate(
-    ultrasonic
-    ,"ultrasonic"
-    , 128 // Stack size
-    , NULL
-    , 1 // Priority
-    , NULL );
+//  xTaskCreate(
+//    stepper
+//    , "stepper"
+//    , 128 // Stack size
+//    , NULL
+//    , 1 // Priority
+//    , NULL );
+//
+//  xTaskCreate(
+//    ultrasonic
+//    , "ultrasonic"
+//    , 128 // Stack size
+//    , NULL
+//    , 1 // Priority
+//    , NULL );
+//
+//  xTaskCreate(
+//    colour_imu
+//    , "colour_imu"
+//    , 128 // Stack size
+//    , NULL
+//    , 1 // Priority
+//    , NULL );
 
   Serial.println("setup complete: starting.....");
   // Now the task scheduler, which takes over control of scheduling individual tasks, is automatically started.

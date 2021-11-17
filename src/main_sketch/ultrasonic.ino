@@ -42,13 +42,13 @@ void ultrasonic(void *pvParameters)
     //Testing without sensor
     //    distance = 20 - (counter * 0.5);
 
-    if (debugEnabled) {
+    if (DEBUG_ENABLED) {
       Serial.print("Ultrasonic: ");
       Serial.println(med_dist);
     }
 
     if (med_dist < MAX_DIST) {
-      send_to_controller(med_dist);
+      send_ultrasonic_to_controller(med_dist);
     }
 
     counter ++;
@@ -56,8 +56,8 @@ void ultrasonic(void *pvParameters)
   }
 }
 
-void send_to_controller(float distance) {
-  //  if (debugEnabled) {
+void send_ultrasonic_to_controller(float distance) {
+  //  if (DEBUG_ENABLED) {
   //    Serial.print("Ultrasonic: Msg Sent to Controller is ");
   //    Serial.println(distance);
   //  }

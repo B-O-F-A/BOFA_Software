@@ -10,7 +10,7 @@ void moveForward(int setSteps) {
       stepperSignal = 16;//0b10000
     }
     stepperSignal >>= 1;
-    if(!debugEnabled){
+    if(!DEBUG_ENABLED){
       for (stepperPinCount = 3; stepperPinCount >= 0; stepperPinCount--) {
         digitalWrite(StepperPins[stepperPinCount], stepperSignal >> stepperPinCount & 0x01);
       }
@@ -33,7 +33,7 @@ void moveBackward(int setSteps) {
       stepperSignal = 16; //0b10000
     }
     stepperSignal >>= 1;
-    if(!debugEnabled){
+    if(!DEBUG_ENABLED){
       for (stepperPinCount = 3; stepperPinCount >= 0; stepperPinCount--) {
         digitalWrite(StepperPins[3 - stepperPinCount], stepperSignal >> stepperPinCount & 0x01);
       }
@@ -54,7 +54,7 @@ void move_stepper(int received_Steps) {
 
   if (received_Steps < 0) {
     moveBackward(abs(received_Steps));
-    if (debugEnabled) {
+    if (DEBUG_ENABLED) {
       Serial.print("Stepper: ");
       Serial.println("Finished Moving Backward");
     }
@@ -62,7 +62,7 @@ void move_stepper(int received_Steps) {
   }
   else if (received_Steps > 0) {
     moveForward(received_Steps);
-    if (debugEnabled) {
+    if (DEBUG_ENABLED) {
       Serial.print("Stepper: ");
       Serial.println("Finished Moving Forward");
     }
