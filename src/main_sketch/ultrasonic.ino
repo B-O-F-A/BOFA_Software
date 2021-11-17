@@ -10,10 +10,16 @@ void ultrasonic(void *pvParameters)
   float duration;
   float distance = 1000.0;
 
-  
+
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
 
+  RunningMedian samples = RunningMedian(5);
+  for (int i = 0; i < 5; i++) {
+    samples.add(distance);
+  }
+
+  float med_dist = samples.getMedian();
   
   int counter = 0;
 
@@ -29,16 +35,20 @@ void ultrasonic(void *pvParameters)
     duration = pulseIn(echoPin, HIGH);
     distance = (duration * .0343) / 2;
 
-    //Testing without sensor
-//    distance = 20 - (counter * 0.5);
+    samples.add(distance);
     
+    med_dist = samples.getMedian();
+
+    //Testing without sensor
+    //    distance = 20 - (counter * 0.5);
+
     if (debugEnabled) {
       Serial.print("Ultrasonic: ");
-      Serial.println(distance);
+      Serial.println(med_dist);
     }
 
-    if (distance < MAX_DIST) {
-      send_to_controller(distance);
+    if (med_dist < MAX_DIST) {
+      send_to_controller(med_dist);
     }
 
     counter ++;
@@ -47,10 +57,10 @@ void ultrasonic(void *pvParameters)
 }
 
 void send_to_controller(float distance) {
-//  if (debugEnabled) {
-//    Serial.print("Ultrasonic: Msg Sent to Controller is ");
-//    Serial.println(distance);
-//  }
+  //  if (debugEnabled) {
+  //    Serial.print("Ultrasonic: Msg Sent to Controller is ");
+  //    Serial.println(distance);
+  //  }
   msg_union msg;
   msg.ultrasonic_message.type = MSG_ULTRASONIC;
   msg.ultrasonic_message.timestamp = millis();

@@ -10,6 +10,7 @@
 #include <timers.h>
 #include <semphr.h>
 #include <Stepper.h>
+#include <RunningMedian.h>
 
 typedef enum
 {
