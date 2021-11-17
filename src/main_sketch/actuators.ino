@@ -1,14 +1,4 @@
 
-// Left Motor
-const int pwmA = 4;
-const int in1A = 2;
-const int in2A = 3;
-
-// Right Motor
-const int pwmB = 5;
-const int in1B = 6;
-const int in2B = 7;
-
 void actuators(void *pvParameters)
 {
   (void) pvParameters;

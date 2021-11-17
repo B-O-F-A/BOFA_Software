@@ -1,5 +1,5 @@
 //const int stepsPerRevolution = 2052;
-const int StepperPins[4] = {8, 9, 10, 11};
+
 int stepperPinCount = 0;
 int stepperSignal = 0;
 

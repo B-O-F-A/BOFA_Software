@@ -13,6 +13,24 @@
 #include <MPU9250.h>
 #include <RunningMedian.h>
 
+// Left Motor Pins
+const int pwmA = 8;
+const int in1A = 9;
+const int in2A = 10;
+
+// Right Motor Pins
+const int in1B = 11;
+const int in2B = 12;
+const int pwmB = 13;
+
+//Stepper Motor Pins
+const int StepperPins[4] = {8, 9, 10, 11}; //STEPPED PINS NEEDS CHANGES
+
+//Ultrasonic Sensor Pins
+const int trigPin = 12; //ULTRASONIC PIN NEEDS CHAGE
+const int echoPin = 13; //ULTRASONIC PIN NEEDS CHAGE
+
+
 typedef enum
 {
   COLOUR_NONE,

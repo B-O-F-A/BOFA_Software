@@ -2,9 +2,6 @@ void ultrasonic(void *pvParameters)
 {
   (void) pvParameters;
 
-  const int trigPin = 12;
-  const int echoPin = 13;
-
   const float MAX_DIST = 10.0;
 
   float duration;
