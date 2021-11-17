@@ -10,8 +10,10 @@ void moveForward(int setSteps) {
       stepperSignal = 16;//0b10000
     }
     stepperSignal >>= 1;
-    for (stepperPinCount = 3; stepperPinCount >= 0; stepperPinCount--) {
-      digitalWrite(StepperPins[stepperPinCount], stepperSignal >> stepperPinCount & 0x01);
+    if(!debugEnabled){
+      for (stepperPinCount = 3; stepperPinCount >= 0; stepperPinCount--) {
+        digitalWrite(StepperPins[stepperPinCount], stepperSignal >> stepperPinCount & 0x01);
+      }
     }
     delay(3);
   }
@@ -31,8 +33,10 @@ void moveBackward(int setSteps) {
       stepperSignal = 16; //0b10000
     }
     stepperSignal >>= 1;
-    for (stepperPinCount = 3; stepperPinCount >= 0; stepperPinCount--) {
-      digitalWrite(StepperPins[3 - stepperPinCount], stepperSignal >> stepperPinCount & 0x01);
+    if(!debugEnabled){
+      for (stepperPinCount = 3; stepperPinCount >= 0; stepperPinCount--) {
+        digitalWrite(StepperPins[3 - stepperPinCount], stepperSignal >> stepperPinCount & 0x01);
+      }
     }
 
     delay(3);
@@ -47,6 +51,7 @@ void stepper_delay(uint32_t set_delay) {
 }
 
 void move_stepper(int received_Steps) {
+
   if (received_Steps < 0) {
     moveBackward(abs(received_Steps));
     if (debugEnabled) {

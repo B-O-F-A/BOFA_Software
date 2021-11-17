@@ -30,7 +30,7 @@ void ultrasonic(void *pvParameters)
     distance = (duration * .0343) / 2;
 
     //Testing without sensor
-    distance = 20 - (counter * 0.5);
+//    distance = 20 - (counter * 0.5);
     
     if (debugEnabled) {
       Serial.print("Ultrasonic: ");
@@ -42,15 +42,15 @@ void ultrasonic(void *pvParameters)
     }
 
     counter ++;
-    vTaskDelay(pdMS_TO_TICKS(200));
+    vTaskDelay(pdMS_TO_TICKS(100));
   }
 }
 
 void send_to_controller(float distance) {
-  if (debugEnabled) {
-    Serial.print("Ultrasonic: Msg Sent to Controller is ");
-    Serial.println(distance);
-  }
+//  if (debugEnabled) {
+//    Serial.print("Ultrasonic: Msg Sent to Controller is ");
+//    Serial.println(distance);
+//  }
   msg_union msg;
   msg.ultrasonic_message.type = MSG_ULTRASONIC;
   msg.ultrasonic_message.timestamp = millis();
