@@ -1,3 +1,10 @@
+
+const float COLOUR_THRESH = 30;
+
+void read_colour_sensors(colour_type_e (&prev_payload)[TOT_NUM_I2C - 1], float (&data)[TOT_NUM_I2C - 1][3]);
+
+void process_data(colour_type_e (&new_payload)[TOT_NUM_I2C - 1], float (&data)[TOT_NUM_I2C - 1][3]);
+
 void colour_imu(void *pvParameters)
 {
   (void) pvParameters;
@@ -14,10 +21,23 @@ void colour_imu(void *pvParameters)
   float current_angle = 0;
   msg_union imu_incoming_msg;
 
+
+  float data[TOT_NUM_I2C - 1][3];
+
+  colour_type_e prev_payload[TOT_NUM_I2C - 1];
+
+  for (int i = 0; i < (TOT_NUM_I2C - 1); i++) {
+    for (int j = 0; j < 3; j++) {
+      data[i][j] = 0.0;
+    }
+    prev_payload[i] = COLOUR_NONE;
+
+  }
+
   for (;;)
   {
 
-    if (xQueueReceive(imu_command_Mailbox, &imu_incoming_msg, 0) == pdPASS ) {
+    if (xQueueReceive(imu_command_Mailbox, &imu_incoming_msg, 0) == pdPASS ) { //need portMAX_DELAY ??
 
       switch (imu_incoming_msg.generic_message.type) {
         case MSG_IMU_COMMAND:
@@ -44,7 +64,7 @@ void colour_imu(void *pvParameters)
     if (IMU_enabled) {
       xSemaphoreTake(mutex, portMAX_DELAY);
       chooseBus(IMU);
-      
+
       if (mpu.update()) {
 
         if (IMU_first) {
@@ -73,9 +93,9 @@ void colour_imu(void *pvParameters)
       }
       xSemaphoreGive(mutex);
     }
-    read_colour_sensors();
-    
-    
+    read_colour_sensors(prev_payload, data);
+
+
     vTaskDelay(pdMS_TO_TICKS(100));
 
   }
@@ -108,34 +128,91 @@ bool goal_reached(float &current_angle, float &start_angle, float &desired_angle
 }
 
 void setup_colour_sensors() {
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < TOT_NUM_I2C - 1; i++) {
     Serial.println(i);
     chooseBus(i);
     if (tcs[i].begin()) {
       Serial.print("Found sensor "); Serial.println(i);
     } else {
       Serial.println("No Sensor Found");
-      //while (true);
+      while (true);
     }
   }
 }
 
-void read_colour_sensors() {
-  for (int i = 0; i < 5; i++) { // get all colors
-    
+void read_colour_sensors(colour_type_e (&prev_payload)[TOT_NUM_I2C - 1], float (&data)[TOT_NUM_I2C - 1][3]) {
+  for (int i = 0; i < (TOT_NUM_I2C - 1); i++) { // get all colors
+
     xSemaphoreTake(mutex, portMAX_DELAY);
-    get_colour(i);
+    get_colour(i, data);
     xSemaphoreGive(mutex);
-    
+
   }
+
+  colour_type_e new_payload[TOT_NUM_I2C - 1];
+
+  process_data(new_payload, data);
+
+  bool send_payload = false;
+
+  for (int i = 0; i < (TOT_NUM_I2C - 1); i++) {
+    if (prev_payload[i] != new_payload[i]) {
+      send_payload = true;
+    }
+    prev_payload[i] = new_payload[i];
+    Serial.print(new_payload[i]); Serial.print(" ");
+
+  } Serial.println(" ");
+
+  if (send_payload) {
+    send_colour_to_controller(new_payload);
+  }
+
+
 }
 
-void get_colour(int sensorNum) {
+void process_data(colour_type_e (&new_payload)[TOT_NUM_I2C - 1], float (&data)[TOT_NUM_I2C - 1][3]) {
+  const int r = 0;
+  const int g = 1;
+  const int b = 2;
+
+  for (int i = 0; i < (TOT_NUM_I2C - 1); i++) {
+
+    float r_g = data[i][r] - data[i][g];
+    float r_b = data[i][r] - data[i][b];
+
+    float g_r = -r_g;
+    float g_b = data[i][g] - data[i][b];
+
+    float b_r = -r_b;
+    float b_g = -g_b;
+
+    colour_type_e colour_val = COLOUR_NONE;
+
+    if ((r_g > COLOUR_THRESH) && (r_b > COLOUR_THRESH)) {
+      colour_val = RED;
+    }
+
+    if ((g_r > COLOUR_THRESH) && (g_b > COLOUR_THRESH)) {
+      colour_val = GREEN;
+    }
+
+    if ((b_g > COLOUR_THRESH) && (b_r > COLOUR_THRESH)) {
+      colour_val = BLUE;
+    }
+
+    new_payload[i] = colour_val;
+
+  }
+
+}
+
+void get_colour(int sensorNum, float (&data)[TOT_NUM_I2C - 1][3]) {
   chooseBus(sensorNum);
   uint16_t r, g, b, c;
   tcs[sensorNum].getRawData(&r, &g, &b, &c); // reading the rgb values 16bits at a time from the i2c channel
 
-  int multiplier = 255;
+  const int multiplier = 255;
 
   float red;
   float green;
@@ -149,28 +226,30 @@ void get_colour(int sensorNum) {
   float final_green = green / (red + green + blue) * 255;
   float final_blue = blue / (red + green + blue) * 255;
   //processColors(r, g, b, c); // processing by dividng by clear value and then multiplying by 256
-  //data[sensorNum][0] = r;
-  //data[sensorNum][1] = g;
-  //data[sensorNum][2] = b;
+
+  data[sensorNum][0] = final_red;
+  data[sensorNum][1] = final_green;
+  data[sensorNum][2] = final_blue;
+
   if (DEBUG_ENABLED && DEBUG_TCS_ENABLED) {
     Serial.print("COLOUR_IMU: READING Sensor: ");
     Serial.println(sensorNum);
     Serial.print ("COLOUR_IMU: ");
-    Serial.print(" R: "); Serial.print(final_red, DEC); Serial.print(" ");
-    Serial.print("G: "); Serial.print(final_green, DEC); Serial.print(" ");
-    Serial.print("B: "); Serial.print(final_blue, DEC); Serial.print(" "); Serial.print(c);
+    Serial.print(" R: "); Serial.print(data[sensorNum][0], DEC); Serial.print(" ");
+    Serial.print("G: "); Serial.print(data[sensorNum][1], DEC); Serial.print(" ");
+    Serial.print("B: "); Serial.print(data[sensorNum][2], DEC); Serial.print(" "); Serial.print(c);
     Serial.println("COLOUR_IMU: -------------------");
   }
 }
 
-void send_colour_to_controller(message_type_e colour_vals[5]) {
+void send_colour_to_controller(colour_type_e colour_vals[TOT_NUM_I2C - 1]) {
 
   msg_union msg;
   msg.colour_message.type = MSG_COLOUR;
-  for (int i = 0; i < TOT_NUM_COLOUR; i++)
+  for (int i = 0; i < (TOT_NUM_I2C - 1); i++)
     msg.colour_message.colour[i] = colour_vals[i];
 
-  xQueueSend(colour_Mailbox, &msg, 0);
+  xQueueSend(controller_Mailbox, &msg, portMAX_DELAY);
 }
 
 void send_imu_ack_to_controller() {
@@ -178,7 +257,7 @@ void send_imu_ack_to_controller() {
   msg.imu_ack_message.type = MSG_IMU_ACK;
   msg.imu_ack_message.angle_reached = true;
 
-  xQueueSend(imu_ack_Mailbox, &msg, 0);
+  xQueueSend(controller_Mailbox, &msg, portMAX_DELAY);
 }
 
 void chooseBus(uint8_t bus) {

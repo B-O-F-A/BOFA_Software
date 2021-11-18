@@ -62,5 +62,5 @@ void send_ack_to_controller() {
   msg.ultrasonic_ack_message.type = MSG_ULTRASONIC_ACK;
   msg.ultrasonic_ack_message.john_in_range = true;
 
-  xQueueSend(ultrasonic_Mailbox, &msg, 0); //maybe need portMAX_DELAY ??
+  xQueueSend(controller_Mailbox, &msg, portMAX_DELAY); //maybe need portMAX_DELAY ??
 }

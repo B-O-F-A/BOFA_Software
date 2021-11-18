@@ -7,10 +7,10 @@ void setup() {
   controller_Mailbox = xQueueCreate(1, sizeof(msg_union));
   actuators_Mailbox = xQueueCreate(1, sizeof(msg_union));
   stepper_Mailbox = xQueueCreate(1, sizeof(msg_union));
-  ultrasonic_Mailbox = xQueueCreate(1, sizeof(msg_union));
-  colour_Mailbox = xQueueCreate(1, sizeof(msg_union));
+  //ultrasonic_Mailbox = xQueueCreate(1, sizeof(msg_union));
+  //colour_Mailbox = xQueueCreate(1, sizeof(msg_union));
   imu_command_Mailbox = xQueueCreate(1, sizeof(msg_union));
-  imu_ack_Mailbox = xQueueCreate(1, sizeof(msg_union));
+  //imu_ack_Mailbox = xQueueCreate(1, sizeof(msg_union));
   
   mutex = xSemaphoreCreateMutex();
   

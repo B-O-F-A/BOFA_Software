@@ -51,6 +51,7 @@ typedef enum
   STATE_COLLECT,
   STATE_RETURN,
   STATE_DROPOFF,
+  STATE_STOP,
 
   TOT_NUM_STATES
 } state_e;
@@ -142,7 +143,7 @@ typedef struct {
 
 typedef struct {
   message_type_e type;
-  message_type_e colour[5]; //distance to object in cm
+  colour_type_e colour[TOT_NUM_I2C - 1]; //distance to object in cm
 } colour_message_t;
 
 typedef struct {
@@ -163,11 +164,13 @@ typedef struct {
 
 typedef union {
   generic_message_t generic_message;
+
   motor_message_t motor_message;
   stepper_message_t stepper_message;
-  ultrasonic_ack_message_t ultrasonic_ack_message;
-  colour_message_t colour_message;
 
+  ultrasonic_ack_message_t ultrasonic_ack_message;
+
+  colour_message_t colour_message;
   imu_command_message_t imu_command_message;
   imu_ack_message_t imu_ack_message;
 
@@ -183,9 +186,9 @@ void colour_imu( void *pvParameters );
 static QueueHandle_t controller_Mailbox;
 static QueueHandle_t actuators_Mailbox;
 static QueueHandle_t stepper_Mailbox;
-static QueueHandle_t ultrasonic_Mailbox;
-static QueueHandle_t colour_Mailbox;
+//static QueueHandle_t ultrasonic_Mailbox;
+//static QueueHandle_t colour_Mailbox;
 static QueueHandle_t imu_command_Mailbox;
-static QueueHandle_t imu_ack_Mailbox;
+//static QueueHandle_t imu_ack_Mailbox;
 
 #endif
