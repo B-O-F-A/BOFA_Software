@@ -21,6 +21,7 @@ void controller(void *pvParameters)
   msg.motor_message.dir = RIGHT;
   for (;;)
   {
+    
     if (counter == secs_to_count(3)) {
       send_to_imu(-90);
     }

@@ -42,8 +42,9 @@ void colour_imu(void *pvParameters)
     }
 
     if (IMU_enabled) {
-
+      xSemaphoreTake(mutex, portMAX_DELAY);
       chooseBus(IMU);
+      
       if (mpu.update()) {
 
         if (IMU_first) {
@@ -53,7 +54,7 @@ void colour_imu(void *pvParameters)
         }
         else {
           current_angle = mpu.getYaw();
-
+          Serial.println("Testing IMU");
           //TESTING WITH NO SENSOR
           //current_angle = current_angle - 1;
           if (DEBUG_ENABLED && DEBUG_IMU_ENABLED) {
@@ -70,9 +71,11 @@ void colour_imu(void *pvParameters)
 
 
       }
+      xSemaphoreGive(mutex);
     }
-
     read_colour_sensors();
+    
+    
     vTaskDelay(pdMS_TO_TICKS(100));
 
   }
@@ -109,20 +112,21 @@ void setup_colour_sensors() {
     Serial.println(i);
     chooseBus(i);
     if (tcs[i].begin()) {
-      Serial.print("Found sensor "); Serial.println(i + 1);
+      Serial.print("Found sensor "); Serial.println(i);
     } else {
       Serial.println("No Sensor Found");
-      while (true);
+      //while (true);
     }
   }
 }
 
 void read_colour_sensors() {
-  for (int i = 0; i < 5; i++) { // get all colors... not necessary right now
-    Serial.print("READING Sensor: ");
-    Serial.println(i);
+  for (int i = 0; i < 5; i++) { // get all colors
+    
+    xSemaphoreTake(mutex, portMAX_DELAY);
     get_colour(i);
-    Serial.println("-------------------");
+    xSemaphoreGive(mutex);
+    
   }
 }
 
@@ -149,10 +153,13 @@ void get_colour(int sensorNum) {
   //data[sensorNum][1] = g;
   //data[sensorNum][2] = b;
   if (DEBUG_ENABLED && DEBUG_TCS_ENABLED) {
-    Serial.print("R: "); Serial.print(final_red, DEC); Serial.print(" ");
-    Serial.print("G: "); Serial.print(final_green, DEC); Serial.print(" ");
-    Serial.print("B: "); Serial.print(final_blue, DEC); Serial.print(" "); Serial.print(c); Serial.print(" ");
+    Serial.print("COLOUR_IMU: READING Sensor: ");
     Serial.println(sensorNum);
+    Serial.print ("COLOUR_IMU: ");
+    Serial.print(" R: "); Serial.print(final_red, DEC); Serial.print(" ");
+    Serial.print("G: "); Serial.print(final_green, DEC); Serial.print(" ");
+    Serial.print("B: "); Serial.print(final_blue, DEC); Serial.print(" "); Serial.print(c);
+    Serial.println("COLOUR_IMU: -------------------");
   }
 }
 

@@ -23,11 +23,11 @@ void chooseBus(uint8_t bus){
 
 void loop() {
     if (mpu.update()) {
-        static uint32_t prev_ms = millis();
-        if (millis() > prev_ms + 25) {
+        //static uint32_t prev_ms = millis();
+        //if (millis() > prev_ms + 25) {
             print_roll_pitch_yaw();
-            prev_ms = millis();
-        }
+            //prev_ms = millis();
+        //}
     }
 }
 

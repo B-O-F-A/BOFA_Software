@@ -3,8 +3,8 @@
 
 #define DEBUG_ENABLED true
 #define DEBUG_ACTUATORS_ENABLED false
-#define DEBUG_IMU_ENABLED false
-#define DEBUG_TCS_ENABLED true
+#define DEBUG_IMU_ENABLED true
+#define DEBUG_TCS_ENABLED false
 
 //includes
 #include <Arduino_FreeRTOS.h>
@@ -41,6 +41,7 @@ const int StepperPins[4] = {5, 4, 3, 2}; //STEPPED PINS NEEDS CHANGES
 const int trigPin = 6; //ULTRASONIC PIN NEEDS CHAGE
 const int echoPin = 7; //ULTRASONIC PIN NEEDS CHAGE
 
+static SemaphoreHandle_t mutex;
 
 typedef enum
 {

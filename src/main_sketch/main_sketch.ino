@@ -11,6 +11,9 @@ void setup() {
   colour_Mailbox = xQueueCreate(1, sizeof(msg_union));
   imu_command_Mailbox = xQueueCreate(1, sizeof(msg_union));
   imu_ack_Mailbox = xQueueCreate(1, sizeof(msg_union));
+  
+  mutex = xSemaphoreCreateMutex();
+  
   Wire.begin();
   delay(500);
   Serial.begin(9600);
@@ -19,7 +22,7 @@ void setup() {
   xTaskCreate(
     colour_imu
     , "colour_imu"
-    , 512 // Stack size
+    , 1024 // Stack size
     , NULL
     , 1 // Priority
     , NULL );
@@ -27,7 +30,7 @@ void setup() {
   xTaskCreate(
     controller
     , "controller" // A name just for humans
-    , 128 // This stack size can be checked & adjusted by reading the Stack Highwater
+    , 1024 // This stack size can be checked & adjusted by reading the Stack Highwater
     , NULL
     , 1 // Priority, with 1 being the highest, and 4 being the lowest.
     , NULL );
@@ -35,18 +38,18 @@ void setup() {
   xTaskCreate(
     actuators
     , "actuators"
-    , 128 // Stack size
+    , 256 // Stack size
     , NULL
     , 1 // Priority
     , NULL );
 
-//    xTaskCreate(
-//      stepper
-//      , "stepper"
-//      , 128 // Stack size
-//      , NULL
-//      , 1 // Priority
-//      , NULL );
+    xTaskCreate(
+      stepper
+      , "stepper"
+      , 128 // Stack size
+      , NULL
+      , 1 // Priority
+      , NULL );
 
   xTaskCreate(
     ultrasonic

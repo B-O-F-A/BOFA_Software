@@ -73,14 +73,15 @@ void changeLED() {
 
 }
 void initColorSensors() {
-  for (int i = 0; i < 1; i++) {
+  for (int i = 0; i < 5; i++) {
     Serial.println(i);
     chooseBus(i);
     if (tcs[i].begin()) {
-      Serial.print("Found sensor "); Serial.println(i + 1);
+      Serial.print("Found sensor "); Serial.println(i);
     } else {
       Serial.println("No Sensor Found");
-      while (true);
+      
+      //while (true);
     }
   }
 
