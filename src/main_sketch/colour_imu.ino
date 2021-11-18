@@ -5,6 +5,7 @@ void colour_imu(void *pvParameters)
   int counter = 0;
 
   setup_imu();
+  setup_colour_sensors();
 
   bool IMU_enabled = false;
   bool IMU_first = false;
@@ -15,65 +16,64 @@ void colour_imu(void *pvParameters)
 
   for (;;)
   {
-    
-        if (xQueueReceive(imu_command_Mailbox, &imu_incoming_msg, 0) == pdPASS ) {
 
-          switch (imu_incoming_msg.generic_message.type) {
-            case MSG_IMU_COMMAND:
-              imu_command_message_t* imu_command_message;
-              imu_command_message = &imu_incoming_msg.imu_command_message;
+    if (xQueueReceive(imu_command_Mailbox, &imu_incoming_msg, 0) == pdPASS ) {
 
-              desired_angle = imu_command_message->yaw;
+      switch (imu_incoming_msg.generic_message.type) {
+        case MSG_IMU_COMMAND:
+          imu_command_message_t* imu_command_message;
+          imu_command_message = &imu_incoming_msg.imu_command_message;
 
-              if (DEBUG_ENABLED) {
-                Serial.print("COLOUR_IMU: Received Angle: ");
-                Serial.println(desired_angle);
-              }
-              IMU_first = true;
-              IMU_enabled = true;
+          desired_angle = imu_command_message->yaw;
 
-              break;
-
-            default:
-              Serial.print("Error: Colour_IMU task recieved unknown message type in imu_command_Mailbox with type: ");
-              Serial.println(imu_incoming_msg.generic_message.type);
+          if (DEBUG_ENABLED) {
+            Serial.print("COLOUR_IMU: Received Angle: ");
+            Serial.println(desired_angle);
           }
+          IMU_first = true;
+          IMU_enabled = true;
+
+          break;
+
+        default:
+          Serial.print("Error: Colour_IMU task recieved unknown message type in imu_command_Mailbox with type: ");
+          Serial.println(imu_incoming_msg.generic_message.type);
+      }
+    }
+
+    if (IMU_enabled) {
+
+      chooseBus(IMU);
+      if (mpu.update()) {
+
+        if (IMU_first) {
+          start_angle = mpu.getYaw();
+          current_angle = start_angle;
+          IMU_first = false;
+        }
+        else {
+          current_angle = mpu.getYaw();
+
+          //TESTING WITH NO SENSOR
+          //current_angle = current_angle - 1;
+          if (DEBUG_ENABLED && DEBUG_IMU_ENABLED) {
+            Serial.print("Colour_IMU: ");
+            Serial.print("Current angle: "); Serial.print(current_angle);
+            Serial.print(" Start angle: "); Serial.print(start_angle);
+            Serial.print(" Desired angle: "); Serial.println(desired_angle);
+          }
+          if (goal_reached(current_angle, start_angle, desired_angle, IMU_enabled)) {
+            send_imu_ack_to_controller();
+          }
+
         }
 
-        if (IMU_enabled) {
 
-          chooseBus(IMU);
-          if (mpu.update()) {
+      }
+    }
 
-            if (IMU_first) {
-              start_angle = mpu.getYaw();
-              current_angle = start_angle;
-              IMU_first = false;
-            }
-            else {
-              current_angle = mpu.getYaw();
-              
-              //TESTING WITH NO SENSOR
-              //current_angle = current_angle - 1;
-              if (DEBUG_ENABLED && DEBUG_IMU_ENABLED){
-              Serial.print("Colour_IMU: ");
-              Serial.print("Current angle: "); Serial.print(current_angle);
-              Serial.print(" Start angle: "); Serial.print(start_angle);
-              Serial.print(" Desired angle: "); Serial.println(desired_angle);
-              }
-              if (goal_reached(current_angle, start_angle, desired_angle, IMU_enabled)) {
-                send_imu_ack_to_controller();
-              }
-
-            }
-
-
-          }
-        }
-        
+    read_colour_sensors();
     vTaskDelay(pdMS_TO_TICKS(100));
-
-    //    read_colours();
 
   }
 }
@@ -102,6 +102,58 @@ bool goal_reached(float &current_angle, float &start_angle, float &desired_angle
     }
   }
   return false;
+}
+
+void setup_colour_sensors() {
+  for (int i = 0; i < 5; i++) {
+    Serial.println(i);
+    chooseBus(i);
+    if (tcs[i].begin()) {
+      Serial.print("Found sensor "); Serial.println(i + 1);
+    } else {
+      Serial.println("No Sensor Found");
+      while (true);
+    }
+  }
+}
+
+void read_colour_sensors() {
+  for (int i = 0; i < 5; i++) { // get all colors... not necessary right now
+    Serial.print("READING Sensor: ");
+    Serial.println(i);
+    get_colour(i);
+    Serial.println("-------------------");
+  }
+}
+
+void get_colour(int sensorNum) {
+  chooseBus(sensorNum);
+  uint16_t r, g, b, c;
+  tcs[sensorNum].getRawData(&r, &g, &b, &c); // reading the rgb values 16bits at a time from the i2c channel
+
+  int multiplier = 255;
+
+  float red;
+  float green;
+  float blue;
+
+  red = ((float)r / (float)c) * multiplier;
+  green = ((float)g / (float)c) * multiplier;
+  blue = ((float)b / (float)c) * multiplier;
+
+  float final_red = red / (red + green + blue) * 255;
+  float final_green = green / (red + green + blue) * 255;
+  float final_blue = blue / (red + green + blue) * 255;
+  //processColors(r, g, b, c); // processing by dividng by clear value and then multiplying by 256
+  //data[sensorNum][0] = r;
+  //data[sensorNum][1] = g;
+  //data[sensorNum][2] = b;
+  if (DEBUG_ENABLED && DEBUG_TCS_ENABLED) {
+    Serial.print("R: "); Serial.print(final_red, DEC); Serial.print(" ");
+    Serial.print("G: "); Serial.print(final_green, DEC); Serial.print(" ");
+    Serial.print("B: "); Serial.print(final_blue, DEC); Serial.print(" "); Serial.print(c); Serial.print(" ");
+    Serial.println(sensorNum);
+  }
 }
 
 void send_colour_to_controller(message_type_e colour_vals[5]) {

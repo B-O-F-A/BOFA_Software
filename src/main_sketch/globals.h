@@ -4,6 +4,7 @@
 #define DEBUG_ENABLED true
 #define DEBUG_ACTUATORS_ENABLED false
 #define DEBUG_IMU_ENABLED false
+#define DEBUG_TCS_ENABLED true
 
 //includes
 #include <Arduino_FreeRTOS.h>
@@ -11,10 +12,17 @@
 #include <timers.h>
 #include <semphr.h>
 #include <Stepper.h>
-#include <MPU9250.h>
+#include "MPU9250.h"
+#include "Adafruit_TCS34725.h"
 #include <RunningMedian.h>
 
 MPU9250 mpu;
+Adafruit_TCS34725 tcs[] = {Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_24MS, TCS34725_GAIN_16X),
+                           Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_24MS, TCS34725_GAIN_16X),
+                           Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_24MS, TCS34725_GAIN_16X),
+                           Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_24MS, TCS34725_GAIN_16X),
+                           Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_24MS, TCS34725_GAIN_16X)
+                          };
 
 // Left Motor Pins
 const int pwmA = 8;
@@ -42,7 +50,7 @@ typedef enum
   STATE_COLLECT,
   STATE_RETURN,
   STATE_DROPOFF,
-  
+
   TOT_NUM_STATES
 } state_e;
 
@@ -128,7 +136,7 @@ typedef struct {
 
 typedef struct {
   message_type_e type;
-  bool john_in_range; //Acknowledgement 
+  bool john_in_range; //Acknowledgement
 } ultrasonic_ack_message_t;
 
 typedef struct {
@@ -158,10 +166,10 @@ typedef union {
   stepper_message_t stepper_message;
   ultrasonic_ack_message_t ultrasonic_ack_message;
   colour_message_t colour_message;
-  
+
   imu_command_message_t imu_command_message;
   imu_ack_message_t imu_ack_message;
-  
+
   timer_message_t timer_message;
 } msg_union;
 
