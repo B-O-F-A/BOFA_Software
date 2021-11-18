@@ -56,7 +56,7 @@ void ultrasonic(void *pvParameters)
 void send_ack_to_controller() {
   //  if (DEBUG_ENABLED) {
   //    Serial.print("Ultrasonic: Msg Sent to Controller is ");
-  //    Serial.println(distance);
+  //    Serial.println(true);
   //  }
   msg_union msg;
   msg.ultrasonic_ack_message.type = MSG_ULTRASONIC_ACK;

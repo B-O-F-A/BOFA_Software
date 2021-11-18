@@ -128,28 +128,28 @@ void bofa_analogWrite(int pin, int PWM_Signal) {
 }
 
 void set_motor_left_forward() {
-  if (DEBUG_ENABLED) {
+  if (DEBUG_ENABLED && DEBUG_ACTUATORS_ENABLED) {
     Serial.println("Actuators: Move LEFT Forward ------");
   }
   digitalWrite(in1A, HIGH);
   digitalWrite(in2A, LOW);
 }
 void set_motor_left_backward() {
-  if (DEBUG_ENABLED) {
+  if (DEBUG_ENABLED && DEBUG_ACTUATORS_ENABLED) {
     Serial.println("Actuators: Move LEFT Backward ------");
   }
   digitalWrite(in1A, LOW);
   digitalWrite(in2A, HIGH);
 }
 void set_motor_right_forward() {
-  if (DEBUG_ENABLED) {
+  if (DEBUG_ENABLED && DEBUG_ACTUATORS_ENABLED) {
     Serial.println("Actuators: Move RIGHT Forward ------");
   }
   digitalWrite(in1B, HIGH);
   digitalWrite(in2B, LOW);
 }
 void set_motor_right_backward() {
-  if (DEBUG_ENABLED) {
+  if (DEBUG_ENABLED && DEBUG_ACTUATORS_ENABLED) {
     Serial.println("Actuators: Move RIGHT Backward ------");
   }
   digitalWrite(in1B, LOW);
