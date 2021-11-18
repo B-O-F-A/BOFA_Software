@@ -102,7 +102,6 @@ void send_to_stepper(int desSteps) {
 
   msg_union msg;
   msg.stepper_message.type = MSG_STEPPER;
-  msg.stepper_message.timestamp = millis();
   msg.stepper_message.steps = desSteps;
 
   xQueueSend(stepper_Mailbox, &msg, portMAX_DELAY);

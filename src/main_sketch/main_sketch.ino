@@ -1,6 +1,7 @@
 #include "globals.h"
 
 // the setup function runs once when you press reset or power the board
+
 void setup() {
 
   controller_Mailbox = xQueueCreate(1, sizeof(msg_union));
@@ -8,7 +9,8 @@ void setup() {
   stepper_Mailbox = xQueueCreate(1, sizeof(msg_union));
   ultrasonic_Mailbox = xQueueCreate(1, sizeof(msg_union));
   colour_Mailbox = xQueueCreate(1, sizeof(msg_union));
-  imu_Mailbox = xQueueCreate(1, sizeof(msg_union));
+  imu_command_Mailbox = xQueueCreate(1, sizeof(msg_union));
+  imu_ack_Mailbox = xQueueCreate(1, sizeof(msg_union));
 
   Serial.begin(9600);
   Serial.println("Initiallizing Setup........");
@@ -29,22 +31,22 @@ void setup() {
     , 1 // Priority
     , NULL );
 
-//  xTaskCreate(
-//    stepper
-//    , "stepper"
-//    , 128 // Stack size
-//    , NULL
-//    , 1 // Priority
-//    , NULL );
-//
-//  xTaskCreate(
-//    ultrasonic
-//    , "ultrasonic"
-//    , 128 // Stack size
-//    , NULL
-//    , 1 // Priority
-//    , NULL );
-//
+  //  xTaskCreate(
+  //    stepper
+  //    , "stepper"
+  //    , 128 // Stack size
+  //    , NULL
+  //    , 1 // Priority
+  //    , NULL );
+
+  xTaskCreate(
+    ultrasonic
+    , "ultrasonic"
+    , 128 // Stack size
+    , NULL
+    , 1 // Priority
+    , NULL );
+
 //  xTaskCreate(
 //    colour_imu
 //    , "colour_imu"

@@ -1,6 +1,9 @@
 void controller(void *pvParameters)
 {
   (void) pvParameters;
+  
+  CURR_STATE = STATE_IDLE;
+  
   int HIGH_SPEED = 60;
   int MED_SPEED = 30;
   int HIGH_SPEED_ROT = 90;
@@ -9,26 +12,24 @@ void controller(void *pvParameters)
   int counter = 0;
   int stepper_msg_counter = 0;
   int motor_speed = HIGH_SPEED_ROT;
+  
   msg_union ultrasonic_msg;
+  
   msg_union msg;
   msg.motor_message.dir = RIGHT;
-
-
-
-
 
   for (;;)
   {
 
     if (xQueueReceive(ultrasonic_Mailbox, &ultrasonic_msg, 0) == pdPASS ) {
       switch (ultrasonic_msg.generic_message.type) {
-        case MSG_ULTRASONIC:
-          ultrasonic_message_t* ultrasonic_message;
-          ultrasonic_message = &ultrasonic_msg.ultrasonic_message;
+        case MSG_ULTRASONIC_ACK:
+          ultrasonic_ack_message_t* ultrasonic_ack_message;
+          ultrasonic_ack_message = &ultrasonic_msg.ultrasonic_ack_message;
 
           if (DEBUG_ENABLED) {
             Serial.print("Controller: Received Dist: ");
-            Serial.println(ultrasonic_message->dist);
+            Serial.println(ultrasonic_ack_message->john_in_range);
           }
 
           break;

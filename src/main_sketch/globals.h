@@ -1,7 +1,7 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#define DEBUG_ENABLED false
+#define DEBUG_ENABLED true
 #define DEBUG_ACTUATORS_ENABLED false
 
 //includes
@@ -19,17 +19,33 @@ const int in1A = 9;
 const int in2A = 10;
 
 // Right Motor Pins
-const int in1B = 12;
-const int in2B = 11;
+const int in1B = 11;
+const int in2B = 12;
 const int pwmB = 13;
 
 //Stepper Motor Pins
-const int StepperPins[4] = {8, 9, 10, 11}; //STEPPED PINS NEEDS CHANGES
+const int StepperPins[4] = {5, 4, 3, 2}; //STEPPED PINS NEEDS CHANGES
 
 //Ultrasonic Sensor Pins
-const int trigPin = 12; //ULTRASONIC PIN NEEDS CHAGE
-const int echoPin = 13; //ULTRASONIC PIN NEEDS CHAGE
+const int trigPin = 6; //ULTRASONIC PIN NEEDS CHAGE
+const int echoPin = 7; //ULTRASONIC PIN NEEDS CHAGE
 
+
+typedef enum
+{
+  STATE_IDLE,
+  STATE_SEARCH,
+  STATE_SLOW,
+  STATE_COLLECT,
+  STATE_RETURN,
+  STATE_DROPOFF,
+  
+  TOT_NUM_STATES
+} state_e;
+
+//STATE DECLARATION/////////////
+state_e CURR_STATE;
+////////////////////////////////
 
 typedef enum
 {
@@ -80,9 +96,10 @@ typedef enum {
   MSG_GENERIC,
   MSG_MOTOR,
   MSG_STEPPER,
-  MSG_ULTRASONIC,
+  MSG_ULTRASONIC_ACK,
   MSG_COLOUR,
-  MSG_IMU,
+  MSG_IMU_COMMAND,
+  MSG_IMU_ACK,
   MSG_TIMER,
 
   //add messages types before this message
@@ -103,27 +120,28 @@ typedef struct {
 
 typedef struct {
   message_type_e type;
-  uint32_t timestamp; // time this message was generated
   int steps; //num Steps moving, +ve Steps(counter_clockwise gate), -ve Steps(clockwise gate)
 } stepper_message_t;
 
 typedef struct {
   message_type_e type;
-  uint32_t timestamp; // time this message was generated
-  float dist; //distance to object in cm
-} ultrasonic_message_t;
+  bool john_in_range; //Acknowledgement 
+} ultrasonic_ack_message_t;
 
 typedef struct {
   message_type_e type;
-  uint32_t timestamp; // time this message was generated
   message_type_e colour[5]; //distance to object in cm
 } colour_message_t;
 
 typedef struct {
   message_type_e type;
-  uint32_t timestamp; // time this message was generated
-  float yaw; //distance to object in cm
-} imu_message_t;
+  float yaw; //+ve CounterClockwise, -ve Clockwise
+} imu_command_message_t;
+
+typedef struct {
+  message_type_e type;
+  bool angle_reached; //Confirmation of reaching angle.
+} imu_ack_message_t;
 
 typedef struct {
   message_type_e type;
@@ -135,9 +153,12 @@ typedef union {
   generic_message_t generic_message;
   motor_message_t motor_message;
   stepper_message_t stepper_message;
-  ultrasonic_message_t ultrasonic_message;
+  ultrasonic_ack_message_t ultrasonic_ack_message;
   colour_message_t colour_message;
-  imu_message_t imu_message;
+  
+  imu_command_message_t imu_command_message;
+  imu_ack_message_t imu_ack_message;
+  
   timer_message_t timer_message;
 } msg_union;
 
@@ -152,6 +173,7 @@ static QueueHandle_t actuators_Mailbox;
 static QueueHandle_t stepper_Mailbox;
 static QueueHandle_t ultrasonic_Mailbox;
 static QueueHandle_t colour_Mailbox;
-static QueueHandle_t imu_Mailbox;
+static QueueHandle_t imu_command_Mailbox;
+static QueueHandle_t imu_ack_Mailbox;
 
 #endif

@@ -45,7 +45,7 @@ void ultrasonic(void *pvParameters)
     }
 
     if (med_dist < MAX_DIST) {
-      send_ultrasonic_to_controller(med_dist);
+      send_ack_to_controller();
     }
 
     counter ++;
@@ -53,15 +53,14 @@ void ultrasonic(void *pvParameters)
   }
 }
 
-void send_ultrasonic_to_controller(float distance) {
+void send_ack_to_controller() {
   //  if (DEBUG_ENABLED) {
   //    Serial.print("Ultrasonic: Msg Sent to Controller is ");
   //    Serial.println(distance);
   //  }
   msg_union msg;
-  msg.ultrasonic_message.type = MSG_ULTRASONIC;
-  msg.ultrasonic_message.timestamp = millis();
-  msg.ultrasonic_message.dist = distance;
+  msg.ultrasonic_ack_message.type = MSG_ULTRASONIC_ACK;
+  msg.ultrasonic_ack_message.john_in_range = true;
 
   xQueueSend(ultrasonic_Mailbox, &msg, 0); //maybe need portMAX_DELAY ??
 }
