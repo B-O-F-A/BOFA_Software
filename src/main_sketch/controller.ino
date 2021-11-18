@@ -19,12 +19,10 @@ void controller(void *pvParameters)
 
   msg_union msg;
   msg.motor_message.dir = RIGHT;
-
   for (;;)
   {
-
-    if (counter == secs_to_count(5)) {
-      send_to_imu(90);
+    if (counter == secs_to_count(3)) {
+      send_to_imu(-90);
     }
 
     //IMU_MESSAGE_ACK to be used in SATE_DROPOFF
@@ -66,8 +64,6 @@ void controller(void *pvParameters)
           Serial.println(msg.generic_message.type);
       }
     }
-
-
 
 
     msg.motor_message.type = MSG_MOTOR;
@@ -150,8 +146,8 @@ void controller(void *pvParameters)
 }
 void send_to_imu(float des_angle) {
 
-  //Serial.print("Controller: Msg Sent to IMU: ");
-  //Serial.println(des_angle);
+  Serial.print("Controller: Msg Sent to IMU: ");
+  Serial.println(des_angle);
 
   msg_union msg;
   msg.imu_command_message.type = MSG_IMU_COMMAND;

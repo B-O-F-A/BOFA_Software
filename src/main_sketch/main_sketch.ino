@@ -11,10 +11,19 @@ void setup() {
   colour_Mailbox = xQueueCreate(1, sizeof(msg_union));
   imu_command_Mailbox = xQueueCreate(1, sizeof(msg_union));
   imu_ack_Mailbox = xQueueCreate(1, sizeof(msg_union));
-
+  Wire.begin();
+  delay(500);
   Serial.begin(9600);
   Serial.println("Initiallizing Setup........");
 
+  xTaskCreate(
+    colour_imu
+    , "colour_imu"
+    , 512 // Stack size
+    , NULL
+    , 1 // Priority
+    , NULL );
+    
   xTaskCreate(
     controller
     , "controller" // A name just for humans
@@ -31,13 +40,13 @@ void setup() {
     , 1 // Priority
     , NULL );
 
-  //  xTaskCreate(
-  //    stepper
-  //    , "stepper"
-  //    , 128 // Stack size
-  //    , NULL
-  //    , 1 // Priority
-  //    , NULL );
+//    xTaskCreate(
+//      stepper
+//      , "stepper"
+//      , 128 // Stack size
+//      , NULL
+//      , 1 // Priority
+//      , NULL );
 
   xTaskCreate(
     ultrasonic
@@ -46,14 +55,6 @@ void setup() {
     , NULL
     , 1 // Priority
     , NULL );
-
-//  xTaskCreate(
-//    colour_imu
-//    , "colour_imu"
-//    , 128 // Stack size
-//    , NULL
-//    , 1 // Priority
-//    , NULL );
 
   Serial.println("setup complete: starting.....");
   // Now the task scheduler, which takes over control of scheduling individual tasks, is automatically started.

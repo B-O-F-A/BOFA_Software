@@ -3,6 +3,7 @@
 
 #define DEBUG_ENABLED true
 #define DEBUG_ACTUATORS_ENABLED false
+#define DEBUG_IMU_ENABLED false
 
 //includes
 #include <Arduino_FreeRTOS.h>
@@ -12,6 +13,8 @@
 #include <Stepper.h>
 #include <MPU9250.h>
 #include <RunningMedian.h>
+
+MPU9250 mpu;
 
 // Left Motor Pins
 const int pwmA = 8;
