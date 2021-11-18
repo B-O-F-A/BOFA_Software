@@ -1,6 +1,3 @@
-
-const float COLOUR_THRESH = 30;
-
 void read_colour_sensors(colour_type_e (&prev_payload)[TOT_NUM_I2C - 1], float (&data)[TOT_NUM_I2C - 1][3]);
 
 void process_data(colour_type_e (&new_payload)[TOT_NUM_I2C - 1], float (&data)[TOT_NUM_I2C - 1][3]);
@@ -160,9 +157,10 @@ void read_colour_sensors(colour_type_e (&prev_payload)[TOT_NUM_I2C - 1], float (
       send_payload = true;
     }
     prev_payload[i] = new_payload[i];
-    Serial.print(new_payload[i]); Serial.print(" ");
+    //Serial.print(new_payload[i]); Serial.print(" ");
 
-  } Serial.println(" ");
+  } 
+  //Serial.println(" ");
 
   if (send_payload) {
     send_colour_to_controller(new_payload);
@@ -238,7 +236,8 @@ void get_colour(int sensorNum, float (&data)[TOT_NUM_I2C - 1][3]) {
     Serial.print(" R: "); Serial.print(data[sensorNum][0], DEC); Serial.print(" ");
     Serial.print("G: "); Serial.print(data[sensorNum][1], DEC); Serial.print(" ");
     Serial.print("B: "); Serial.print(data[sensorNum][2], DEC); Serial.print(" "); Serial.print(c);
-    Serial.println("COLOUR_IMU: -------------------");
+    Serial.println("");
+    Serial.println("-------------------");
   }
 }
 
