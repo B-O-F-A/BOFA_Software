@@ -4,7 +4,7 @@
 #define on true
 #define off false
 
-#define DEBUG_ENABLED on
+#define DEBUG_ENABLED off
 #define DEBUG_ACTUATORS_ENABLED off
 #define DEBUG_IMU_ENABLED off
 #define DEBUG_TCS_ENABLED off
@@ -130,14 +130,14 @@ typedef struct {
 
 typedef struct {
   message_type_e type;
-  uint32_t timestamp; // time this message was generated
   uint8_t spd; //percentage of max speed
+  int8_t error; //error val
   direction_type_e dir; //direction that the robot should be going
-  stepper_direction_type_e step_dir; //direction of stepper
 } motor_message_t;
 
 typedef struct {
   message_type_e type;
+  stepper_direction_type_e step_dir; //direction of stepper
   int steps; //num Steps moving, +ve Steps(counter_clockwise gate), -ve Steps(clockwise gate)
 } stepper_message_t;
 
@@ -163,8 +163,6 @@ typedef struct {
 
 typedef struct {
   message_type_e type;
-  uint32_t timestamp; // time this message was generated
-  const char* timer_name;
 } timer_message_t;
 
 typedef union {

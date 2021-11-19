@@ -7,24 +7,19 @@
 
 state_e state_search(msg_union &msg) {
   static colour_type_e tcs_sen[5] = {0, 0, 0, 0, 0};
-  static msg_union motor_msg;
+  static motor_message_t motor_msg;
+  static uint32_t prev_time = millis();
 
-  const int AVG_SPEED = 90;
+  uint32_t curr_time = millis();
 
-  const int SPEED_DIFF = 10;
+  const int AVG_SPEED = 60;
 
   const int AVG_SPEED_ROT = 60;
-  
-//  const int HIGH_SPEED = 60;
-//  const int MED_SPEED = 30;
-//  const int HIGH_SPEED_ROT = 90;
-//  const int MED_SPEED_ROT = 90;
+  motor_msg.type = MSG_MOTOR;
+  motor_msg.spd = AVG_SPEED;
+  motor_msg.dir = FORWARD;
 
-  
-  //msg.motor_message.dir = FORWARD;
-
-
-  if (xQueueReceive(controller_Mailbox, &msg, portMAX_DELAY) == pdPASS ) {
+  if (xQueueReceive(controller_Mailbox, &msg, 0) == pdPASS ) {
     switch (msg.generic_message.type) {
       case MSG_COLOUR:
         colour_message_t* colour_message;
@@ -45,10 +40,28 @@ state_e state_search(msg_union &msg) {
 
         //STRAIGHT LINE
         if ((tcs_sen[MID_COL] == RED) && (tcs_sen[LEFT_COL] != RED) && (tcs_sen[RIGHT_COL] != RED)) {
-
+          motor_msg.error = 0;
+        }
+        //TURN LEFT
+        else if ((tcs_sen[LEFT_COL] == RED) && (tcs_sen[RIGHT_COL] != RED)) {
+          motor_msg.error = -1;
+        }
+        //TURN RIGHT
+        else if ((tcs_sen[LEFT_COL] != RED) && (tcs_sen[RIGHT_COL] == RED)) {
+          motor_msg.error = 1;
         }
 
+        Serial.print("Controller: motor_msg{type: ");
+        Serial.print(motor_msg.type);
+        Serial.print(" spd: ");
+        Serial.print(motor_msg.spd);
+        Serial.print(" dir: ");
+        Serial.print(motor_msg.dir);
+        Serial.print(" error: ");
+        Serial.print(motor_msg.error);
+        Serial.println("------------------");
 
+        xQueueSend(actuators_Mailbox, &motor_msg, 0);
         break;
       case MSG_ULTRASONIC_ACK:
 
@@ -58,10 +71,6 @@ state_e state_search(msg_union &msg) {
         Serial.print("Error: controller task recieved unknown message type with type: ");
         Serial.println(msg.generic_message.type);
     }
-  }
-
-  if (DEBUG_ENABLED) {
-    Serial.println("Controller: CURR_STATE = SEARCH");
   }
 
   return STATE_SEARCH;

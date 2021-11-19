@@ -21,9 +21,16 @@ void controller(void *pvParameters)
   //  STATE_STOP
 
   msg_union msg;
-  
+  state_e prev_state = -1;
   for (;;)
   {
+    if (prev_state != CURR_STATE) {
+      prev_state = CURR_STATE;
+      if (DEBUG_ENABLED) {
+        Serial.print("Controller: CURR_STATE = "); Serial.println(CURR_STATE);
+      }
+    }
+
     switch (CURR_STATE)
     {
       case STATE_IDLE:
@@ -49,13 +56,13 @@ void controller(void *pvParameters)
       case STATE_DROPOFF:
         //CURR_STATE = state_dropff(msg);
         break;
-        
+
       case STATE_STOP:
         //state_stop(msg);
         break;
     }
 
-    vTaskDelay(pdMS_TO_TICKS(100));
+
 
   }
 }
