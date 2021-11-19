@@ -74,7 +74,8 @@ void actuators(void *pvParameters)
       }
 
     }
-    motor_diff = pid_value(motor_msg.dir, motor_msg.error);
+    //motor_diff = pid_value(motor_msg.dir, motor_msg.error);
+    //motor_diff = abs(error)*20;
     run_motors(motor_msg.spd, motor_msg.dir, motor_diff, motor_msg.error);
     delay(timer_delay);
 
@@ -103,7 +104,7 @@ float pid_value(direction_type_e &dir, int8_t &error) {
 
 }
 void run_motors(uint8_t spd, direction_type_e dir, float motor_diff, int8_t &error) {
-
+  
   float left_speed = (float)spd - motor_diff - abs(error)*50;
   float right_speed = (float)spd + motor_diff - abs(error)*50;
 
@@ -113,6 +114,17 @@ void run_motors(uint8_t spd, direction_type_e dir, float motor_diff, int8_t &err
   left_speed = (left_speed >= -100) ? left_speed : -100;
   right_speed = (right_speed >= -100) ? right_speed : -100;
 
+  float set_avg_diff = 20;
+   
+  if(error > 0){
+    //turn left
+    left_speed = -set_avg_diff;
+    right_speed =  set_avg_diff;
+  }else if (error < 0){
+    //turn right
+    left_speed = set_avg_diff;
+    right_speed = -set_avg_diff;
+  }
 
   int PWM_L = (int) (255 * left_speed / 100);
   int PWM_R = (int) (255 * right_speed / 100);

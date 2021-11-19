@@ -2,7 +2,7 @@ void ultrasonic(void *pvParameters)
 {
   (void) pvParameters;
 
-  const float MAX_DIST = 10.0;
+  const float MAX_DIST = 11.0;
 
   float duration;
   float distance = 1000.0;
@@ -19,7 +19,9 @@ void ultrasonic(void *pvParameters)
   float med_dist = samples.getMedian();
   
   int counter = 0;
-
+  if(DEBUG_ENABLED){
+    delay(100);
+  }
   for (;;)
   {
 
@@ -31,18 +33,18 @@ void ultrasonic(void *pvParameters)
 
     duration = pulseIn(echoPin, HIGH);
     distance = (duration * .0343) / 2;
-
+    
     samples.add(distance);
     
-    med_dist = samples.getMedian();
-
+    //med_dist = samples.getMedian();
+      med_dist = distance; //REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE 
     //Testing without sensor
     //    distance = 20 - (counter * 0.5);
 
-//    if (DEBUG_ENABLED) {
-//      Serial.print("Ultrasonic: ");
-//      Serial.println(med_dist);
-//    }
+    if (DEBUG_ENABLED) {
+      Serial.print("Ultrasonic: ");
+      Serial.println(med_dist);
+    }
 
     if (med_dist < MAX_DIST) {
       send_ack_to_controller();

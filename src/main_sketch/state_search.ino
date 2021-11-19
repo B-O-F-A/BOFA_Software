@@ -5,11 +5,12 @@
 //  LEFT_AUX_COLOUR
 //  RIGHT_AUX_COLOUR
 
+bool stop_motors = false;
 state_e state_search(msg_union &msg) {
-  static colour_type_e tcs_sen[5] = {0, 0, 0, 0, 0};
+  static colour_type_e tcs_sen[5] = {COLOUR_NONE, COLOUR_NONE, COLOUR_NONE, COLOUR_NONE, COLOUR_NONE};
   static motor_message_t motor_msg;
   static uint32_t prev_time = millis();
-
+  
   uint32_t curr_time = millis();
 
   const int AVG_SPEED = 60;
@@ -61,11 +62,27 @@ state_e state_search(msg_union &msg) {
         Serial.print(motor_msg.error);
         Serial.println("------------------");
 
-        xQueueSend(actuators_Mailbox, &motor_msg, 0);
-        break;
-      case MSG_ULTRASONIC_ACK:
+        if (!stop_motors) {
+          //xQueueSend(actuators_Mailbox, &motor_msg, 0);
+        }
 
         break;
+      case MSG_ULTRASONIC_ACK:
+        ultrasonic_ack_message_t* ultrasonic_ack_message;
+        ultrasonic_ack_message = &msg.ultrasonic_ack_message;
+
+        if (DEBUG_ENABLED){
+        Serial.print("Controlle: Ultrasonic: ");
+        Serial.println(ultrasonic_ack_message->john_in_range);
+        }else{
+        motor_msg.type = MSG_MOTOR;
+        motor_msg.spd = AVG_SPEED;
+        motor_msg.dir = STOP;
+        xQueueSend(actuators_Mailbox, &motor_msg, 0);
+        stop_motors = true;
+        }
+        break;
+
 
       default:
         Serial.print("Error: controller task recieved unknown message type with type: ");

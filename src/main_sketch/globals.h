@@ -4,7 +4,7 @@
 #define on true
 #define off false
 
-#define DEBUG_ENABLED off
+#define DEBUG_ENABLED on
 #define DEBUG_ACTUATORS_ENABLED off
 #define DEBUG_IMU_ENABLED off
 #define DEBUG_TCS_ENABLED off

@@ -1,7 +1,7 @@
 //Ultrasonic Sensor
 
-const int trigPin = 12;
-const int echoPin = 13;
+const int trigPin = 6;
+const int echoPin = 7;
 
 float duration, distance;
 

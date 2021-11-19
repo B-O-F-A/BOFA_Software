@@ -8,7 +8,7 @@ void colour_imu(void *pvParameters)
 
   int counter = 0;
 
-  setup_imu();
+ // setup_imu();
   setup_colour_sensors();
 
   bool IMU_enabled = false;
@@ -93,7 +93,8 @@ void colour_imu(void *pvParameters)
     read_colour_sensors(prev_payload, data);
 
 
-    vTaskDelay(pdMS_TO_TICKS(100));
+//    vTaskDelay(1);
+    delay(5);
 
   }
 }
@@ -138,6 +139,7 @@ void setup_colour_sensors() {
 }
 
 void read_colour_sensors(colour_type_e (&prev_payload)[TOT_NUM_I2C - 1], float (&data)[TOT_NUM_I2C - 1][3]) {
+  //Serial.println("COLOUR_IMU: COLOUR GROUP --------------------------------------");
   for (int i = 0; i < (TOT_NUM_I2C - 1); i++) { // get all colors
 
     xSemaphoreTake(mutex, portMAX_DELAY);
