@@ -77,11 +77,11 @@ typedef enum
 
 typedef enum
 {
-  LEFT_COLOUR,
-  MID_COLOUR,
-  RIGHT_COLOUR,
-  LEFT_AUX_COLOUR,
-  RIGHT_AUX_COLOUR,
+  LEFT_COL,
+  MID_COL,
+  RIGHT_COL,
+  LEFT_AUX_COL,
+  RIGHT_AUX_COL,
   IMU,
 
   //add direction types before this enum

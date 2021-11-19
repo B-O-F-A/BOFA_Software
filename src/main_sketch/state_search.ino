@@ -6,6 +6,24 @@
 //  RIGHT_AUX_COLOUR
 
 state_e state_search(msg_union &msg) {
+  static colour_type_e tcs_sen[5] = {0, 0, 0, 0, 0};
+  static msg_union motor_msg;
+
+  const int AVG_SPEED = 90;
+
+  const int SPEED_DIFF = 10;
+
+  const int AVG_SPEED_ROT = 60;
+  
+//  const int HIGH_SPEED = 60;
+//  const int MED_SPEED = 30;
+//  const int HIGH_SPEED_ROT = 90;
+//  const int MED_SPEED_ROT = 90;
+
+  
+  //msg.motor_message.dir = FORWARD;
+
+
   if (xQueueReceive(controller_Mailbox, &msg, portMAX_DELAY) == pdPASS ) {
     switch (msg.generic_message.type) {
       case MSG_COLOUR:
@@ -15,16 +33,25 @@ state_e state_search(msg_union &msg) {
         if (DEBUG_ENABLED) {
           Serial.print("Controller: Received colour_msg: ");
           for (int i = 0; i < (TOT_NUM_I2C - 1); i++) {
+
             Serial.print(colour_message->colour[i]); Serial.print(" ");
           }
           Serial.println(" ");
         }
 
+        for (int i = 0; i < (TOT_NUM_I2C - 1); i++) {
+          tcs_sen[i] = colour_message->colour[i];
+        }
+
+        //STRAIGHT LINE
+        if ((tcs_sen[MID_COL] == RED) && (tcs_sen[LEFT_COL] != RED) && (tcs_sen[RIGHT_COL] != RED)) {
+
+        }
+
+
         break;
       case MSG_ULTRASONIC_ACK:
-        if (DEBUG_ENABLED) {
-          Serial.println("Controller: Received ultrasonic_msg but ignoring now"); 
-        }
+
         break;
 
       default:
