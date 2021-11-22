@@ -58,18 +58,26 @@ void colour_imu(void *pvParameters)
       }
     }
 
-    if (IMU_enabled) {
+    //if (IMU_enabled) {
       xSemaphoreTake(mutex, portMAX_DELAY);
       chooseBus(IMU);
 
       if (mpu.update()) {
+        delay(1);
+        mpu.update();
 
         if (IMU_first) {
-          start_angle = mpu.getYaw();
-          current_angle = start_angle;
-          IMU_first = false;
+          static int imu_counter = 0;
+          if (imu_counter > 5) {
+            start_angle = mpu.getYaw();
+            current_angle = start_angle;
+            IMU_first = false;
+            imu_counter = 0;
+          }
+          imu_counter++;
         }
         else {
+
           current_angle = mpu.getYaw();
           Serial.println("Testing IMU");
           //TESTING WITH NO SENSOR
@@ -87,13 +95,13 @@ void colour_imu(void *pvParameters)
         }
 
 
+        xSemaphoreGive(mutex);
       }
-      xSemaphoreGive(mutex);
-    }
-    read_colour_sensors(prev_payload, data);
 
-
-    vTaskDelay(pdMS_TO_TICKS(100));
+    ///}
+      Serial.println("Testing----------------------");
+      read_colour_sensors(prev_payload, data);
+      //delay(5);
 
   }
 }
@@ -159,7 +167,7 @@ void read_colour_sensors(colour_type_e (&prev_payload)[TOT_NUM_I2C - 1], float (
     prev_payload[i] = new_payload[i];
     //Serial.print(new_payload[i]); Serial.print(" ");
 
-  } 
+  }
   //Serial.println(" ");
 
   if (send_payload) {
@@ -230,14 +238,16 @@ void get_colour(int sensorNum, float (&data)[TOT_NUM_I2C - 1][3]) {
   data[sensorNum][2] = final_blue;
 
   if (DEBUG_ENABLED && DEBUG_TCS_ENABLED) {
-    Serial.print("COLOUR_IMU: READING Sensor: ");
-    Serial.println(sensorNum);
-    Serial.print ("COLOUR_IMU: ");
-    Serial.print(" R: "); Serial.print(data[sensorNum][0], DEC); Serial.print(" ");
-    Serial.print("G: "); Serial.print(data[sensorNum][1], DEC); Serial.print(" ");
-    Serial.print("B: "); Serial.print(data[sensorNum][2], DEC); Serial.print(" "); Serial.print(c);
-    Serial.println("");
-    Serial.println("-------------------");
+    if (sensorNum == 2) {
+      Serial.print("COLOUR_IMU: READING Sensor: ");
+      Serial.println(sensorNum);
+      Serial.print ("COLOUR_IMU: ");
+      Serial.print(" R: "); Serial.print(data[sensorNum][0], DEC); Serial.print(" ");
+      Serial.print("G: "); Serial.print(data[sensorNum][1], DEC); Serial.print(" ");
+      Serial.print("B: "); Serial.print(data[sensorNum][2], DEC); Serial.print(" "); Serial.print(c);
+      Serial.println("");
+      Serial.println("-------------------");
+    }
   }
 }
 
@@ -266,10 +276,10 @@ void chooseBus(uint8_t bus) {
 }
 
 //void read_IMU(MPU9250 &mpu) {
-//  if (mpu.update()) {
-//    //static uint32_t prev_ms = millis();
-//    //if (millis() > prev_ms + 50) {
-//    //prev_ms = millis();
+//  //if (mpu.update()) {
+//    static uint32_t prev_ms = millis();
+//    if (millis() > prev_ms + 25) {
+//    prev_ms = millis();
 //    if (DEBUG_ENABLED) {
 //      Serial.print("Colour_IMU: Yaw: ");
 //      Serial.println(mpu.getYaw());
@@ -277,8 +287,20 @@ void chooseBus(uint8_t bus) {
 //    //send_imu_to_controller();
 //    //mpu.getPitch();
 //    //mpu.getRoll();
-//    //} else {
+//    //mpu.getYaw();
+//    }
+//    //else {
 //    //  taskYIELD();
 //    //}
+//  //}
+//}
+
+//void readIMU() {
+//  if (mpu.update()) {
+//    static uint32_t prev_ms = millis();
+//    if (millis() > prev_ms + 25) {
+//      print_roll_pitch_yaw();
+//      prev_ms = millis();
+//    }
 //  }
 //}

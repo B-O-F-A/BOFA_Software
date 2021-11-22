@@ -4,11 +4,10 @@
 #define on true
 #define off false
 
-#define DEBUG_ENABLED off
+#define DEBUG_ENABLED on
 #define DEBUG_ACTUATORS_ENABLED off
-#define DEBUG_IMU_ENABLED off
+#define DEBUG_IMU_ENABLED on
 #define DEBUG_TCS_ENABLED off
-
 //includes
 #include <Arduino_FreeRTOS.h>
 #include <queue.h>
@@ -21,13 +20,13 @@
 
 MPU9250 mpu;
 //colour sensor stuff
-Adafruit_TCS34725 tcs[] = {Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_2_4MS, TCS34725_GAIN_16X),
-                           Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_2_4MS, TCS34725_GAIN_16X),
-                           Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_2_4MS, TCS34725_GAIN_16X),
-                           Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_2_4MS, TCS34725_GAIN_16X),
-                           Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_2_4MS, TCS34725_GAIN_16X)
+Adafruit_TCS34725 tcs[] = {Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_2_4MS, TCS34725_GAIN_4X),
+                           Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_2_4MS, TCS34725_GAIN_4X),
+                           Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_2_4MS, TCS34725_GAIN_4X),
+                           Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_2_4MS, TCS34725_GAIN_4X),
+                           Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_2_4MS, TCS34725_GAIN_4X)
                           };
-const float COLOUR_THRESH = 25;
+const float COLOUR_THRESH = 20;
 
 // Left Motor Pins
 const int pwmA = 8;

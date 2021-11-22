@@ -99,13 +99,15 @@ float pid_value(direction_type_e &dir, int8_t &error) {
   }
   else if (dir == BACKWARD) {
     return Ki * error * time_diff * (-1) + Kp * error;
+  }else{
+    return 0;
   }
 
 }
 void run_motors(uint8_t spd, direction_type_e dir, float motor_diff, int8_t &error) {
 
-  float left_speed = (float)spd - motor_diff - abs(error)*50;
-  float right_speed = (float)spd + motor_diff - abs(error)*50;
+  float left_speed = (float)spd - motor_diff - abs(error)*10;
+  float right_speed = (float)spd + motor_diff - abs(error)*10;
 
   left_speed = (left_speed <= 100) ? left_speed : 100;
   right_speed = (right_speed <= 100) ? right_speed : 100;
@@ -116,7 +118,7 @@ void run_motors(uint8_t spd, direction_type_e dir, float motor_diff, int8_t &err
 
   int PWM_L = (int) (255 * left_speed / 100);
   int PWM_R = (int) (255 * right_speed / 100);
-
+  
   switch (dir) {
     case STOP:
       PWM_L = 0;
@@ -136,6 +138,7 @@ void run_motors(uint8_t spd, direction_type_e dir, float motor_diff, int8_t &err
       break;
 
     case LEFT:
+    
       set_motor_left_backward();
       set_motor_right_forward();
       break;
@@ -147,7 +150,7 @@ void run_motors(uint8_t spd, direction_type_e dir, float motor_diff, int8_t &err
     default:
       Serial.println("Actuators: Unknown direction");
   }
-
+  
   bofa_analogWrite(pwmA, PWM_L);
   bofa_analogWrite(pwmB, PWM_R);
 

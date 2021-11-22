@@ -40,14 +40,19 @@ void setup() {
     x *= 255;
     gammatable[i] = x;
   }
+  initIMU();
   initColorSensors();
-  //initIMU();
+
   //attachInterrupt(digitalPinToInterrupt(inPin), changeLED, CHANGE);
 }
+
 void loop() {
   //    for(int i = 0; i < sizeof(data); i++){ // get all colors... not necessary right now
   //        readColors(i);
   //    }
+//chooseBus(-1);
+ for (int iter = 0; iter < 10; iter++){   
+  Serial.println(iter);
   for (int i = 0; i < 5; i++) { // get all colors... not necessary right now
     Serial.print("READING Sensor: ");
     Serial.println(i);
@@ -55,11 +60,19 @@ void loop() {
     Serial.println("-------------------");
 
   }
+ }
+ 
+for (int j = 0; j < 30; j++){ 
+  readIMU();
+}
+
+//counter ++;
+//chooseBus(-2);
   //for(int i = 0; i < 1; i++){
   //    readColors(count);
   //}
 
-  //    readIMU();
+  
 
 }
 void changeLED() {
@@ -89,13 +102,14 @@ void initColorSensors() {
 }
 
 void initIMU() {
-  chooseBus(5);
+  //chooseBus(5);
   if (!mpu.setup(0x68)) {  // change to your own address
     while (1) {
       Serial.println("MPU connection failed. Please check your connection with `connection_check` example.");
       delay(5000);
     }
   }
+  //Serial.println("Found MPU");
 }
 
 void readColors(int sensorNum) {
@@ -139,19 +153,35 @@ void processColors(uint16_t &r, uint16_t &g, uint16_t &b, uint16_t c) {
   b = bfloat * 256;
 }
 
-void chooseBus(uint8_t bus) {
+void chooseBus(int8_t bus) {
   Wire.beginTransmission(0x70);
   Wire.write(1 << (bus + 2)); // will be using 2-7 instead of 0-5 because of convience (placed better on the breadboard)
   Wire.endTransmission();
 }
 
+//void readIMU() {
+//  //chooseBus(5);
+//  //initIMU();
+//  if (mpu.update()) {
+//    static uint32_t prev_ms = millis();
+//    if (millis() > prev_ms + 25) {
+//      print_roll_pitch_yaw();
+//      prev_ms = millis();
+//    }
+//  }
+//}
+
 void readIMU() {
+  chooseBus(5);
+  
   if (mpu.update()) {
-    static uint32_t prev_ms = millis();
-    if (millis() > prev_ms + 25) {
+    //static uint32_t prev_ms = millis();
+    //if (millis() > prev_ms + 25) {
+    delay(25);
+    mpu.update();
       print_roll_pitch_yaw();
-      prev_ms = millis();
-    }
+      //prev_ms = millis();
+    //}
   }
 }
 
