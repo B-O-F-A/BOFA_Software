@@ -1,3 +1,4 @@
+/*
 void ultrasonic(void *pvParameters)
 {
   (void) pvParameters;
@@ -64,3 +65,4 @@ void send_ack_to_controller() {
 
   xQueueSend(controller_Mailbox, &msg, portMAX_DELAY); //maybe need portMAX_DELAY ??
 }
+*/

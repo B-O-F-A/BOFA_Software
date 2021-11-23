@@ -44,7 +44,7 @@ void actuators(void *pvParameters)
       switch (msg.generic_message.type) {
         case MSG_MOTOR:   //motor control port
           motor_msg = msg.motor_message;
-   
+
           break;
 
         //        case MSG_TIMER:
@@ -77,7 +77,7 @@ void actuators(void *pvParameters)
 
 float pid_value(direction_type_e &dir, int8_t &error) {
   const float Ki = 0;
-  const float Kp = 10;
+  const float Kp = 10; //13
   static uint32_t prev_time = millis();
   uint32_t curr_time = millis();
   if (error == 0) {
@@ -92,15 +92,46 @@ float pid_value(direction_type_e &dir, int8_t &error) {
   }
   else if (dir == BACKWARD) {
     return Ki * error * time_diff * (-1) + Kp * error;
-  }else{
+  } else {
     return 0;
   }
 
 }
-void run_motors(uint8_t spd, direction_type_e dir, float motor_diff, int8_t &error) {
+float left_motor_offset(float spd) {
+  float m = (10 - 5) / (70 - 40);
+  return m * spd;
 
-  float left_speed = (float)spd - motor_diff - abs(error)*10;
-  float right_speed = (float)spd + motor_diff - abs(error)*10;
+}
+void run_motors(uint8_t spd, direction_type_e dir, float motor_diff, int8_t &error) {
+  static int motor_counter = 0;
+  static bool turn_rec = false;
+/*
+  if (error != 0) {
+    motor_counter = 0;
+    turn_rec = true;
+  }
+  if (error == 0) {
+    if (motor_counter > 50) {
+      turn_rec = false;
+    } else {
+      motor_counter ++;
+    }
+
+  }*/
+
+  const float left_offset = 0;
+  const float right_offset = 0;
+  
+  float left_speed = (float)spd + motor_diff - abs(error) * 20;
+  float right_speed = (float)spd - motor_diff - abs(error) * 20;
+
+/*
+  if (turn_rec && error == 0) {
+    left_speed -=15;
+    right_speed -= 15;
+  }
+*/
+  left_speed = left_speed + left_motor_offset(left_speed);
 
   left_speed = (left_speed <= 100) ? left_speed : 100;
   right_speed = (right_speed <= 100) ? right_speed : 100;
@@ -111,7 +142,7 @@ void run_motors(uint8_t spd, direction_type_e dir, float motor_diff, int8_t &err
 
   int PWM_L = (int) (255 * left_speed / 100);
   int PWM_R = (int) (255 * right_speed / 100);
-  
+
   switch (dir) {
     case STOP:
       PWM_L = 0;
@@ -131,7 +162,7 @@ void run_motors(uint8_t spd, direction_type_e dir, float motor_diff, int8_t &err
       break;
 
     case LEFT:
-    
+
       set_motor_left_backward();
       set_motor_right_forward();
       break;
@@ -139,29 +170,30 @@ void run_motors(uint8_t spd, direction_type_e dir, float motor_diff, int8_t &err
     case RIGHT:
       set_motor_left_forward();
       set_motor_right_backward();
-
+      break;
     default:
-      Serial.println("Actuators: Unknown direction");
+      Serial.print("Error: Actuator task recieved unknown message type with type: ");
+      Serial.println(dir);
   }
-  
-  bofa_analogWrite(pwmA, PWM_L);
-  bofa_analogWrite(pwmB, PWM_R);
+
+  bofa_analogWrite(pwmB, PWM_L);
+  bofa_analogWrite(pwmA, PWM_R);
 
 }
-void set_motor_left(int &PWM){
-  if (PWM >= 0){
+void set_motor_left(int &PWM) {
+  if (PWM >= 0) {
     set_motor_left_forward();
-  }else{
+  } else {
     set_motor_left_backward();
-    PWM = -1*PWM;
+    PWM = -1 * PWM;
   }
 }
-void set_motor_right(int &PWM){
-  if (PWM >= 0){
+void set_motor_right(int &PWM) {
+  if (PWM >= 0) {
     set_motor_right_forward();
-  }else{
+  } else {
     set_motor_right_backward();
-    PWM = -1*PWM;
+    PWM = -1 * PWM;
   }
 }
 
@@ -196,33 +228,33 @@ void bofa_analogWrite(int pin, int PWM_Signal) {
   }
 }
 
-void set_motor_left_forward() {
-  if (DEBUG_ENABLED && DEBUG_ACTUATORS_ENABLED) {
-    Serial.println("Actuators: Move LEFT Forward ------");
-  }
-  digitalWrite(in1A, LOW);
-  digitalWrite(in2A, HIGH);
-}
-void set_motor_left_backward() {
-  if (DEBUG_ENABLED && DEBUG_ACTUATORS_ENABLED) {
-    Serial.println("Actuators: Move LEFT Backward ------");
-  }
-  digitalWrite(in1A, HIGH);
-  digitalWrite(in2A, LOW);
-}
 void set_motor_right_forward() {
   if (DEBUG_ENABLED && DEBUG_ACTUATORS_ENABLED) {
     Serial.println("Actuators: Move RIGHT Forward ------");
   }
-  digitalWrite(in1B, LOW);
-  digitalWrite(in2B, HIGH);
+  digitalWrite(in1A, HIGH);
+  digitalWrite(in2A, LOW);
 }
 void set_motor_right_backward() {
   if (DEBUG_ENABLED && DEBUG_ACTUATORS_ENABLED) {
     Serial.println("Actuators: Move RIGHT Backward ------");
   }
+  digitalWrite(in1A, LOW);
+  digitalWrite(in2A, HIGH);
+}
+void set_motor_left_forward() {
+  if (DEBUG_ENABLED && DEBUG_ACTUATORS_ENABLED) {
+    Serial.println("Actuators: Move LEFT Forward ------");
+  }
   digitalWrite(in1B, HIGH);
   digitalWrite(in2B, LOW);
+}
+void set_motor_left_backward() {
+  if (DEBUG_ENABLED && DEBUG_ACTUATORS_ENABLED) {
+    Serial.println("Actuators: Move LEFT Backward ------");
+  }
+  digitalWrite(in1B, LOW);
+  digitalWrite(in2B, HIGH);
 }
 
 void pxMotorTimerCallback (TimerHandle_t xTimer) {

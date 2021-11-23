@@ -9,7 +9,7 @@ state_e state_return(msg_union &msg) {
   static colour_type_e tcs_sen[5] = {COLOUR_NONE, COLOUR_NONE, COLOUR_NONE, COLOUR_NONE, COLOUR_NONE};
   static motor_message_t motor_msg;
 
-  const int AVG_SPEED = 60;
+  const int AVG_SPEED = 40;
 
   const int SLOW_SPEED = 30;
 

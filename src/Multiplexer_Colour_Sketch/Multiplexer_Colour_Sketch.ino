@@ -40,7 +40,7 @@ void setup() {
     x *= 255;
     gammatable[i] = x;
   }
-  initIMU();
+  //initIMU();
   initColorSensors();
 
   //attachInterrupt(digitalPinToInterrupt(inPin), changeLED, CHANGE);
@@ -63,7 +63,7 @@ void loop() {
  }
  
 for (int j = 0; j < 30; j++){ 
-  readIMU();
+  //readIMU();
 }
 
 //counter ++;

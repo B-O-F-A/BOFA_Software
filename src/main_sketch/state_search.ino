@@ -15,7 +15,7 @@ state_e state_search(msg_union &msg) {
 
   uint32_t curr_time = millis();
 
-  const int AVG_SPEED = 60;
+  const int AVG_SPEED = 40;
 
   const int AVG_SPEED_ROT = 60;
   motor_msg.type = MSG_MOTOR;
@@ -35,13 +35,13 @@ state_e state_search(msg_union &msg) {
 
             Serial.print(colour_message->colour[i]); Serial.print(" ");
           }
-          Serial.println(" ");
+          Serial.println(" --------------------------------- ");
         }
 
         for (int i = 0; i < (TOT_NUM_I2C - 1); i++) {
           tcs_sen[i] = colour_message->colour[i];
         }
-
+        motor_msg.error = 0;
         //STRAIGHT LINE
         if ((tcs_sen[MID_COL] == RED) && (tcs_sen[LEFT_COL] != RED) && (tcs_sen[RIGHT_COL] != RED)) {
           motor_msg.error = 0;

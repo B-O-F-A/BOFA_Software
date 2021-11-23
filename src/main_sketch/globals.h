@@ -4,10 +4,11 @@
 #define on true
 #define off false
 
-#define DEBUG_ENABLED on
+#define DEBUG_ENABLED off
 #define DEBUG_ACTUATORS_ENABLED off
 #define DEBUG_IMU_ENABLED off
 #define DEBUG_TCS_ENABLED off
+
 //includes
 #include <Arduino_FreeRTOS.h>
 #include <queue.h>
@@ -17,7 +18,6 @@
 #include <Servo.h>
 #include "MPU9250.h"
 #include "Adafruit_TCS34725.h"
-#include <RunningMedian.h>
 
 MPU9250 mpu;
 //colour sensor stuff
@@ -32,12 +32,12 @@ const float COLOUR_THRESH = 20;
 //BreakBeam Pin
 const int beamPin = 20;
 
-// Left Motor Pins
+// Right Motor Pins
 const int pwmA = 8;
 const int in1A = 9;
 const int in2A = 10;
 
-// Right Motor Pins
+// Left Motor Pins
 const int in1B = 11;
 const int in2B = 12;
 const int pwmB = 13;

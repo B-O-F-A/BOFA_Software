@@ -5,7 +5,7 @@
 void setup() {
 
   controller_Mailbox = xQueueCreate(1, sizeof(msg_union));
-  actuators_Mailbox = xQueueCreate(2, sizeof(msg_union));
+  actuators_Mailbox = xQueueCreate(1, sizeof(msg_union));
   stepper_Mailbox = xQueueCreate(1, sizeof(msg_union));
   //ultrasonic_Mailbox = xQueueCreate(1, sizeof(msg_union));
   //colour_Mailbox = xQueueCreate(1, sizeof(msg_union));
@@ -14,10 +14,10 @@ void setup() {
   
   mutex = xSemaphoreCreateMutex();
   
-  attachInterrupt(digitalPinToInterrupt(beamPin), xBeamInterruptHandler, FALLING);
+  //attachInterrupt(digitalPinToInterrupt(beamPin), xBeamInterruptHandler, FALLING);
   
-  gate_servo.attach(servoPin);
-  gate_servo.write(CLOSE_GATE);
+  //gate_servo.attach(servoPin);
+  //gate_servo.write(OPEN_GATE);
   
   Wire.begin();
   delay(500);
