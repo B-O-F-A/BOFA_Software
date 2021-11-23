@@ -14,6 +14,11 @@ void setup() {
   
   mutex = xSemaphoreCreateMutex();
   
+  attachInterrupt(digitalPinToInterrupt(beamPin), xBeamInterruptHandler, FALLING);
+  
+  gate_servo.attach(servoPin);
+  gate_servo.write(CLOSE_GATE);
+  
   Wire.begin();
   delay(500);
   Serial.begin(9600);
@@ -43,21 +48,21 @@ void setup() {
     , 1 // Priority
     , NULL );
 
-    xTaskCreate(
-      stepper
-      , "stepper"
-      , 128 // Stack size
-      , NULL
-      , 1 // Priority
-      , NULL );
+//    xTaskCreate(
+//      stepper
+//      , "stepper"
+//      , 128 // Stack size
+//      , NULL
+//      , 1 // Priority
+//      , NULL );
 
-  xTaskCreate(
-    ultrasonic
-    , "ultrasonic"
-    , 128 // Stack size
-    , NULL
-    , 1 // Priority
-    , NULL );
+//  xTaskCreate(
+//    ultrasonic
+//    , "ultrasonic"
+//    , 128 // Stack size
+//    , NULL
+//    , 1 // Priority
+//    , NULL );
 
   Serial.println("setup complete: starting.....");
   // Now the task scheduler, which takes over control of scheduling individual tasks, is automatically started.

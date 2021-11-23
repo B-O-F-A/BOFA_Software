@@ -4,16 +4,18 @@
 //  RIGHT_COLOUR
 //  LEFT_AUX_COLOUR
 //  RIGHT_AUX_COLOUR
-bool first_time = true;
+
+
+//bool first_time = true;
 
 state_e state_search(msg_union &msg) {
-  static colour_type_e tcs_sen[5] = {0, 0, 0, 0, 0};
+  static colour_type_e tcs_sen[5] = {COLOUR_NONE, COLOUR_NONE, COLOUR_NONE, COLOUR_NONE, COLOUR_NONE};
   static motor_message_t motor_msg;
   static uint32_t prev_time = millis();
 
   uint32_t curr_time = millis();
 
-  const int AVG_SPEED = 40;
+  const int AVG_SPEED = 60;
 
   const int AVG_SPEED_ROT = 60;
   motor_msg.type = MSG_MOTOR;
@@ -52,19 +54,14 @@ state_e state_search(msg_union &msg) {
         else if ((tcs_sen[LEFT_COL] != RED) && (tcs_sen[RIGHT_COL] == RED)) {
           motor_msg.error = 1;
         }
-/*
-        Serial.print("Controller: motor_msg{type: ");
-        Serial.print(motor_msg.type);
-        Serial.print(" spd: ");
-        Serial.print(motor_msg.spd);
-        Serial.print(" dir: ");
-        Serial.print(motor_msg.dir);
-        Serial.print(" error: ");
-        Serial.print(motor_msg.error);
-        Serial.println("------------------");
-*/
+
+        if((tcs_sen[LEFT_COL] == BLUE) && (tcs_sen[RIGHT_COL] == BLUE)){
+          return STATE_SLOW;
+        }
+
         xQueueSend(actuators_Mailbox, &motor_msg, 0);
         break;
+        
       case MSG_ULTRASONIC_ACK:
 
         break;
@@ -74,23 +71,22 @@ state_e state_search(msg_union &msg) {
         Serial.println(msg.generic_message.type);
     }
   }
-  if (first_time){
-    first_time = false;
-    send_to_imu();
-    
-  }
+//  if (first_time){
+//    first_time = false;
+//    send_to_imu();
+//  }
   
   return STATE_SEARCH;
 }
 
-void send_to_imu() {
-  //  if (DEBUG_ENABLED) {
-  //    Serial.print("Ultrasonic: Msg Sent to Controller is ");
-  //    Serial.println(true);
-  //  }
-  msg_union msg;
-  msg.imu_command_message.type = MSG_IMU_COMMAND;
-  msg.imu_command_message.yaw = 90;
-
-  xQueueSend(imu_command_Mailbox, &msg, portMAX_DELAY);
-}
+//void send_to_imu() {
+//  //  if (DEBUG_ENABLED) {
+//  //    Serial.print("Ultrasonic: Msg Sent to Controller is ");
+//  //    Serial.println(true);
+//  //  }
+//  msg_union msg;
+//  msg.imu_command_message.type = MSG_IMU_COMMAND;
+//  msg.imu_command_message.yaw = 90;
+//
+//  xQueueSend(imu_command_Mailbox, &msg, portMAX_DELAY);
+//}

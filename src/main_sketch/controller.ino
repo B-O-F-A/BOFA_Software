@@ -4,6 +4,8 @@ void controller(void *pvParameters)
 
   CURR_STATE = STATE_IDLE;
 
+  RETURN_MODE = INITIAL;
+
   int HIGH_SPEED = 60;
   int MED_SPEED = 30;
   int HIGH_SPEED_ROT = 90;
@@ -21,7 +23,8 @@ void controller(void *pvParameters)
   //  STATE_STOP
 
   msg_union msg;
-  state_e prev_state = -1;
+  state_e prev_state = TOT_NUM_STATES;
+
   for (;;)
   {
     if (prev_state != CURR_STATE) {
@@ -50,7 +53,7 @@ void controller(void *pvParameters)
         break;
 
       case STATE_RETURN:
-        //CURR_STATE = state_return(msg);
+        CURR_STATE = state_return(msg);
         break;
 
       case STATE_DROPOFF:

@@ -6,14 +6,15 @@
 
 #define DEBUG_ENABLED on
 #define DEBUG_ACTUATORS_ENABLED off
-#define DEBUG_IMU_ENABLED on
+#define DEBUG_IMU_ENABLED off
 #define DEBUG_TCS_ENABLED off
 //includes
 #include <Arduino_FreeRTOS.h>
 #include <queue.h>
 #include <timers.h>
 #include <semphr.h>
-#include <Stepper.h>
+//#include <Stepper.h>
+#include <Servo.h>
 #include "MPU9250.h"
 #include "Adafruit_TCS34725.h"
 #include <RunningMedian.h>
@@ -28,6 +29,9 @@ Adafruit_TCS34725 tcs[] = {Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_2_4MS, TCS
                           };
 const float COLOUR_THRESH = 20;
 
+//BreakBeam Pin
+const int beamPin = 20;
+
 // Left Motor Pins
 const int pwmA = 8;
 const int in1A = 9;
@@ -39,13 +43,14 @@ const int in2B = 12;
 const int pwmB = 13;
 
 //Stepper Motor Pins
-const int StepperPins[4] = {5, 4, 3, 2}; //STEPPED PINS NEEDS CHANGES
+//const int StepperPins[4] = {5, 4, 3, 2}; //STEPPED PINS NEEDS CHANGES
+
+Servo gate_servo;
+const int servoPin = 4;
 
 //Ultrasonic Sensor Pins
 const int trigPin = 6; //ULTRASONIC PIN NEEDS CHAGE
 const int echoPin = 7; //ULTRASONIC PIN NEEDS CHAGE
-
-static SemaphoreHandle_t mutex;
 
 typedef enum
 {
@@ -89,10 +94,29 @@ typedef enum
 
 typedef enum
 {
+  INITIAL,
+  NOMINAL,
+  ROTATE1,
+  ROTATE2,
+  DROPOFF_COMPLETE,
+
+  TOT_NUM_RETURN_MODES
+} return_mode_e;
+
+//RETURN MODE DECLARATION//////////
+return_mode_e RETURN_MODE;
+///////////////////////////////////
+
+typedef enum
+{
   STEPPER_MOVE_NONE,
   CLOSE_GATE,
   OPEN_GATE
 } stepper_direction_type_e;
+const int CLOSE_SERVO_GATE = 90;
+const int OPEN_SERVO_GATE = 50;
+
+
 
 //enum definitions
 typedef enum {
@@ -140,6 +164,11 @@ typedef struct {
   int steps; //num Steps moving, +ve Steps(counter_clockwise gate), -ve Steps(clockwise gate)
 } stepper_message_t;
 
+//typedef struct {
+//  message_type_e type;
+//  stepper_direction_type_e step_dir; //direction of servo
+//} stepper_message_t;
+//
 typedef struct {
   message_type_e type;
   bool john_in_range; //Acknowledgement
@@ -192,5 +221,27 @@ static QueueHandle_t stepper_Mailbox;
 //static QueueHandle_t colour_Mailbox;
 static QueueHandle_t imu_command_Mailbox;
 //static QueueHandle_t imu_ack_Mailbox;
+
+static SemaphoreHandle_t mutex;
+
+int initial_return_timer_delay = 1000;
+
+void pxInitialReturnTimerCallback (TimerHandle_t xTimer) {
+  RETURN_MODE = NOMINAL;
+}
+
+TimerHandle_t initial_return_timer = xTimerCreate
+                                     ( "initial_return_timer",
+                                       initial_return_timer_delay,
+                                       pdTRUE,
+                                       ( void * ) 0,
+                                       pxInitialReturnTimerCallback);
+
+static void xBeamInterruptHandler(){
+  msg_union msg;
+  msg.ultrasonic_ack_message.type = MSG_ULTRASONIC_ACK;
+  msg.ultrasonic_ack_message.john_in_range = true;
+  xQueueSend(controller_Mailbox, &msg, portMAX_DELAY);
+}
 
 #endif

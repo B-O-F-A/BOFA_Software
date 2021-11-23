@@ -44,14 +44,7 @@ void actuators(void *pvParameters)
       switch (msg.generic_message.type) {
         case MSG_MOTOR:   //motor control port
           motor_msg = msg.motor_message;
-          //          switch (motor_message->step_dir) {
-          //            case CLOSE_GATE:
-          //              send_to_stepper(CLOSE_GATE_STEPS);
-          //              break;
-          //
-          //            case OPEN_GATE:
-          //              send_to_stepper(OPEN_GATE_STEPS);
-          //          }
+   
           break;
 
         //        case MSG_TIMER:
@@ -84,7 +77,7 @@ void actuators(void *pvParameters)
 
 float pid_value(direction_type_e &dir, int8_t &error) {
   const float Ki = 0;
-  const float Kp = 40;
+  const float Kp = 10;
   static uint32_t prev_time = millis();
   uint32_t curr_time = millis();
   if (error == 0) {

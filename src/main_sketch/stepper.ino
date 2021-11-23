@@ -1,3 +1,5 @@
+/*
+
 //const int stepsPerRevolution = 2052;
 
 int stepperPinCount = 0;
@@ -91,6 +93,7 @@ void stepper(void *pvParameters)
         case MSG_STEPPER:
           stepper_message_t* stepper_message;
           stepper_message = &msg.stepper_message;
+          
           //Serial.print(stepper_message->type);//there is currently an error interperating this
           //Serial.print("  ");
           //Serial.println(stepper_message->steps);
@@ -108,3 +111,6 @@ void stepper(void *pvParameters)
     }
   }
 }
+
+
+*/

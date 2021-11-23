@@ -59,22 +59,22 @@ void colour_imu(void *pvParameters)
     }
 
     //if (IMU_enabled) {
-      xSemaphoreTake(mutex, portMAX_DELAY);
-      chooseBus(IMU);
+    xSemaphoreTake(mutex, portMAX_DELAY);
+    chooseBus(IMU);
 
-      if (mpu.update()) {
-        delay(1);
-        mpu.update();
-
+    if (mpu.update()) {
+      delay(1);
+      mpu.update();
+      if (IMU_enabled) {
         if (IMU_first) {
-          static int imu_counter = 0;
-          if (imu_counter > 5) {
-            start_angle = mpu.getYaw();
-            current_angle = start_angle;
-            IMU_first = false;
-            imu_counter = 0;
-          }
-          imu_counter++;
+          //static int imu_counter = 0;
+          //if (imu_counter > 10) {
+          start_angle = mpu.getYaw();
+          current_angle = start_angle;
+          IMU_first = false;
+          //imu_counter = 0;
+          //}
+          //imu_counter++;
         }
         else {
 
@@ -89,19 +89,21 @@ void colour_imu(void *pvParameters)
             Serial.print(" Desired angle: "); Serial.println(desired_angle);
           }
           if (goal_reached(current_angle, start_angle, desired_angle, IMU_enabled)) {
+            IMU_enabled = false;
             send_imu_ack_to_controller();
           }
 
         }
-
-
-        xSemaphoreGive(mutex);
       }
 
+      
+    }
+    xSemaphoreGive(mutex);
+
     ///}
-      Serial.println("Testing----------------------");
-      read_colour_sensors(prev_payload, data);
-      //delay(5);
+    Serial.println("Testing----------------------");
+    read_colour_sensors(prev_payload, data);
+    //delay(5);
 
   }
 }
