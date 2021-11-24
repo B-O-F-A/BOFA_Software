@@ -10,17 +10,17 @@
 
 state_e state_search(msg_union &msg) {
   static colour_type_e tcs_sen[5] = {COLOUR_NONE, COLOUR_NONE, COLOUR_NONE, COLOUR_NONE, COLOUR_NONE};
-  static motor_message_t motor_msg;
+  motor_message_t motor_msg;
   static uint32_t prev_time = millis();
-
   uint32_t curr_time = millis();
 
-  const int AVG_SPEED = 40;
+  const float AVG_SPEED = 35.0;
+  const float SLOW_SPEED = 25.0;
+  const float AVG_SPEED_ROT = 30.0;
 
-  const int AVG_SPEED_ROT = 60;
   motor_msg.type = MSG_MOTOR;
   motor_msg.spd = AVG_SPEED;
-  motor_msg.dir = FORWARD;
+  motor_msg.dir = DIRECTION_NONE;
   motor_msg.error = 0;
 
   if (xQueueReceive(controller_Mailbox, &msg, 0) == pdPASS ) {
@@ -42,26 +42,37 @@ state_e state_search(msg_union &msg) {
           tcs_sen[i] = colour_message->colour[i];
         }
         motor_msg.error = 0;
-        //STRAIGHT LINE
-        if ((tcs_sen[MID_COL] == RED) && (tcs_sen[LEFT_COL] != RED) && (tcs_sen[RIGHT_COL] != RED)) {
-          motor_msg.error = 0;
-        }
-        //TURN LEFT
-        else if ((tcs_sen[LEFT_COL] == RED) && (tcs_sen[RIGHT_COL] != RED)) {
-          motor_msg.error = -1;
-        }
-        //TURN RIGHT
-        else if ((tcs_sen[LEFT_COL] != RED) && (tcs_sen[RIGHT_COL] == RED)) {
-          motor_msg.error = 1;
+        //BACKWARD EMERGENCY STRAIGHT LINE
+        if (tcs_sen[LEFT_AUX_COL] == RED) {
+          motor_msg.dir = LEFT;
+          motor_msg.type = MSG_MOTOR;
         }
 
-        if((tcs_sen[LEFT_COL] == BLUE) && (tcs_sen[RIGHT_COL] == BLUE)){
-          return STATE_SLOW;
+        else if (tcs_sen[RIGHT_AUX_COL] == RED) {
+          motor_msg.dir = RIGHT;
+          motor_msg.type = MSG_MOTOR;
         }
+        else{
+          motor_msg.dir = FORWARD;
+          motor_msg.type = MSG_MOTOR;
+          motor_msg.spd = AVG_SPEED;
+        }
+//        else if (tcs_sen[MID_COL] != RED) {
+//          motor_msg.dir = FORWARD;
+//          motor_msg.type = MSG_MOTOR;
+//          motor_msg.spd = SLOW_SPEED;
+//
+//        }
+//        else if (tcs_sen[MID_COL] == RED) {
+//          motor_msg.dir = FORWARD;
+//          motor_msg.type = MSG_MOTOR;
+//          motor_msg.spd = AVG_SPEED;
+//        }
 
         xQueueSend(actuators_Mailbox, &motor_msg, 0);
+
         break;
-        
+
       case MSG_ULTRASONIC_ACK:
 
         break;
@@ -71,11 +82,11 @@ state_e state_search(msg_union &msg) {
         Serial.println(msg.generic_message.type);
     }
   }
-//  if (first_time){
-//    first_time = false;
-//    send_to_imu();
-//  }
-  
+  //  if (first_time){
+  //    first_time = false;
+  //    send_to_imu();
+  //  }
+
   return STATE_SEARCH;
 }
 

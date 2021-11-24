@@ -66,6 +66,21 @@ void colour_imu(void *pvParameters)
 }
 
 void read_colour_sensors(colour_type_e (&prev_payload)[TOT_NUM_I2C - 1], float (&data)[TOT_NUM_I2C - 1][3]) {
+  /* Added by Frank*/
+//  static int counter;
+//  int num_color_to_read;
+//  counter++;
+//  counter%=3;
+//  if (counter==0){
+//    num_color_to_read = 5;
+//  }
+//  else{
+//    num_color_to_read = 3;
+//  }
+//  for (int i = 0; i < num_color_to_read; i++) {
+//    get_colour(i, data);
+//  }
+  /* Added by Frank*/
   for (int i = 0; i < (TOT_NUM_I2C - 1); i++) {
     get_colour(i, data);
   }
@@ -75,14 +90,17 @@ void read_colour_sensors(colour_type_e (&prev_payload)[TOT_NUM_I2C - 1], float (
   process_data(new_payload, data);
 
   bool send_payload = false;
-
+Serial.print("Colour_IMU: New_payload:  ");
+    
   for (int i = 0; i < (TOT_NUM_I2C - 1); i++) {
     if (prev_payload[i] != new_payload[i]) {
       send_payload = true;
     }
+    Serial.print(new_payload[i]);
     prev_payload[i] = new_payload[i];
-
+    
   }
+Serial.println(" ");
 
   xSemaphoreTake(mutex, portMAX_DELAY);
   for (int i = 0; i < 3; i++) {
@@ -91,7 +109,7 @@ void read_colour_sensors(colour_type_e (&prev_payload)[TOT_NUM_I2C - 1], float (
   xSemaphoreGive(mutex);
 
   if (DEBUG_ENABLED && DEBUG_TCS_ENABLED) {
-    Serial.print("Colour Diff (1-0) (2-1): ");
+    Serial.print("COLOUR_IMU: Colour Diff (1-0) (2-1): ");
     Serial.print(red_values[1] - red_values[0]);
     Serial.print(" ");
     Serial.println(red_values[2] - red_values[1]);
@@ -128,18 +146,18 @@ void get_colour(int sensorNum, float (&data)[TOT_NUM_I2C - 1][3]) {
   data[sensorNum][2] = final_blue;
 
 
-  //  if (DEBUG_ENABLED && DEBUG_TCS_ENABLED) {
-  //    if (sensorNum == 2 || sensorNum == 0 || sensorNum == 1) {
-  //      Serial.print("COLOUR_IMU: READING Sensor: ");
-  //      Serial.println(sensorNum);
-  //      Serial.print ("COLOUR_IMU: ");
-  //      Serial.print(" R: "); Serial.print(data[sensorNum][0], DEC); Serial.print(" ");
-  //      Serial.print("G: "); Serial.print(data[sensorNum][1], DEC); Serial.print(" ");
-  //      Serial.print("B: "); Serial.print(data[sensorNum][2], DEC); Serial.print(" "); Serial.print(c);
-  //      Serial.println("");
-  //      Serial.println("-------------------");
-  //  }
-  //  }
+    if (DEBUG_ENABLED && DEBUG_TCS_ENABLED) {
+      if (sensorNum == 2 || sensorNum == 0 || sensorNum == 1) {
+        Serial.print("COLOUR_IMU: READING Sensor: ");
+        Serial.println(sensorNum);
+        Serial.print ("COLOUR_IMU: ");
+        Serial.print(" R: "); Serial.print(data[sensorNum][0], DEC); Serial.print(" ");
+        Serial.print("G: "); Serial.print(data[sensorNum][1], DEC); Serial.print(" ");
+        Serial.print("B: "); Serial.print(data[sensorNum][2], DEC); Serial.print(" "); Serial.print(c);
+        Serial.println("");
+        Serial.println("-------------------");
+    }
+    }
 }
 
 void process_data(colour_type_e (&new_payload)[TOT_NUM_I2C - 1], float (&data)[TOT_NUM_I2C - 1][3]) {

@@ -43,7 +43,7 @@ void setup() {
   xTaskCreate(
     actuators
     , "actuators"
-    , 256 // Stack size
+    , 512 // Stack size
     , NULL
     , 1 // Priority
     , NULL );

@@ -6,11 +6,6 @@ void controller(void *pvParameters)
 
   RETURN_MODE = INITIAL;
 
-  int HIGH_SPEED = 60;
-  int MED_SPEED = 30;
-  int HIGH_SPEED_ROT = 90;
-  int MED_SPEED_ROT = 90;
-
   int counter = 0;
 
   //  STATES USED:
