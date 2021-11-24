@@ -1,6 +1,12 @@
 #include "globals.h"
 
 // the setup function runs once when you press reset or power the board
+static void xBeamInterruptHandler(){
+  msg_union msg;
+  msg.ultrasonic_ack_message.type = MSG_ULTRASONIC_ACK;
+  msg.ultrasonic_ack_message.john_in_range = true;
+  xQueueSend(controller_Mailbox, &msg, portMAX_DELAY);
+}
 
 void setup() {
 
@@ -14,11 +20,12 @@ void setup() {
   
   mutex = xSemaphoreCreateMutex();
   
-  //attachInterrupt(digitalPinToInterrupt(beamPin), xBeamInterruptHandler, FALLING);
   
-  //gate_servo.attach(servoPin);
-  //gate_servo.write(OPEN_GATE);
   
+  gate_servo.attach(servoPin);
+  gate_servo.write(OPEN_SERVO_GATE);
+  
+  attachInterrupt(digitalPinToInterrupt(beamPin), xBeamInterruptHandler, RISING);
   Wire.begin();
   delay(500);
   Serial.begin(9600);

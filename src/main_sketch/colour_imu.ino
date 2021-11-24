@@ -90,18 +90,15 @@ void read_colour_sensors(colour_type_e (&prev_payload)[TOT_NUM_I2C - 1], float (
   process_data(new_payload, data);
 
   bool send_payload = false;
-Serial.print("Colour_IMU: New_payload:  ");
     
   for (int i = 0; i < (TOT_NUM_I2C - 1); i++) {
     if (prev_payload[i] != new_payload[i]) {
       send_payload = true;
     }
-    Serial.print(new_payload[i]);
     prev_payload[i] = new_payload[i];
     
   }
-Serial.println(" ");
-
+  
   xSemaphoreTake(mutex, portMAX_DELAY);
   for (int i = 0; i < 3; i++) {
     red_values[i] = data[i][0];

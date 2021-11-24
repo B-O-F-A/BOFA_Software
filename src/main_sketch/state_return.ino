@@ -83,7 +83,7 @@ state_e state_return(msg_union &msg) {
             Serial.println(safe_zone_counter);
           }
           if (safe_zone_counter >= 2){
-            gate_servo.write(OPEN_GATE);
+            gate_servo.write(OPEN_SERVO_GATE);
             delay(200);
             NEED_DROPOFF = false;
           }

@@ -31,7 +31,7 @@ const float COLOUR_THRESH = 20;
 float red_values[3]  = {0, 0, 0};
 
 //BreakBeam Pin
-const int beamPin = 20;
+const int beamPin = 2;
 
 // Right Motor Pins
 const int pwmA = 8;
@@ -47,7 +47,7 @@ const int pwmB = 13;
 //const int StepperPins[4] = {5, 4, 3, 2}; //STEPPED PINS NEEDS CHANGES
 
 Servo gate_servo;
-const int servoPin = 4;
+const int servoPin = 3;
 
 //Ultrasonic Sensor Pins
 const int trigPin = 6; //ULTRASONIC PIN NEEDS CHAGE
@@ -114,8 +114,10 @@ typedef enum
   CLOSE_GATE,
   OPEN_GATE
 } stepper_direction_type_e;
-const int CLOSE_SERVO_GATE = 90;
-const int OPEN_SERVO_GATE = 50;
+
+
+const int CLOSE_SERVO_GATE = 20;
+const int OPEN_SERVO_GATE = 180;
 
 
 
@@ -238,11 +240,6 @@ TimerHandle_t initial_return_timer = xTimerCreate
                                        ( void * ) 0,
                                        pxInitialReturnTimerCallback);
 
-static void xBeamInterruptHandler(){
-  msg_union msg;
-  msg.ultrasonic_ack_message.type = MSG_ULTRASONIC_ACK;
-  msg.ultrasonic_ack_message.john_in_range = true;
-  xQueueSend(controller_Mailbox, &msg, portMAX_DELAY);
-}
+
 
 #endif
