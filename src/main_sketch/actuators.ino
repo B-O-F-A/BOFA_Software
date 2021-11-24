@@ -9,8 +9,6 @@ void actuators(void *pvParameters)
 
   msg_union msg;
   motor_message_t motor_msg;
-  const int CLOSE_GATE_STEPS = (int)(-1 * 90 * (2052 / 360.0)); //Rotating -90 degrees
-  const int OPEN_GATE_STEPS = (int)(1 *  90 * (2052 / 360.0)); //Rotating 90 degrees
 
   // Motor Speed Values - Start at zero
   int MotorSpeedL = 0;
@@ -29,14 +27,6 @@ void actuators(void *pvParameters)
   if (DEBUG_ENABLED && DEBUG_ACTUATORS_ENABLED) {
     timer_delay = 10;
   }
-  //  TimerHandle_t write_motor_timer = xTimerCreate
-  //                                    ( "motor_timer",
-  //                                      timer_delay,
-  //                                      pdTRUE,
-  //                                      ( void * ) 0,
-  //                                      pxMotorTimerCallback);
-  //
-  //  xTimerStart(write_motor_timer, 0);
 
   for (;;)
   {
@@ -44,23 +34,8 @@ void actuators(void *pvParameters)
       switch (msg.generic_message.type) {
         case MSG_MOTOR:   //motor control port
           //motor_msg = msg.motor_message;
-
+          
           break;
-
-        //        case MSG_TIMER:
-        //          timer_message_t* timer_message;
-        //          timer_message = &msg.timer_message;
-        //          motor_diff = pid_value(motor_msg.dir, motor_msg.error);
-        //          if (DEBUG_ENABLED && DEBUG_ACTUATORS_ENABLED) {
-        //            Serial.print("ACTUATORS: motor_message{error: ");
-        //            Serial.print(motor_msg.error);Serial.println("-----------------");
-        //            Serial.println("ACTUATORS: motor_message dir: "); Serial.print(motor_msg.dir); Serial.println("}");
-        //            Serial.print("motor_diff: "); Serial.println(motor_diff);
-        //          }
-
-
-        //          break;
-
         default:
           Serial.print("Error: actuator task recieved unknown message type with type: ");
           Serial.println(msg.generic_message.type);
@@ -86,18 +61,23 @@ void actuators(void *pvParameters)
       Serial.print(" right: ");
       Serial.println(right_mid);
 
-     Serial.print("Colour_error: ");
+      Serial.print("Colour_error: ");
       Serial.println(colour_error);
       
     }
 
-    colour_error = sqrt_func(colour_error);
+    //colour_error = sqrt_func(colour_error);
 
     Serial.print("Colour_error_filtered: ");
       Serial.println(colour_error);
-      
+    
     motor_msg.dir = FORWARD; 
     motor_msg.spd = 20;
+    
+    if (colour_error > 10){
+      motor_msg.spd = 20;
+    }
+    
     float motor_diff;
     motor_diff = pid_value(motor_msg.dir, colour_error);
     run_motors(motor_msg.spd, motor_msg.dir, motor_diff, colour_error);
@@ -107,22 +87,22 @@ void actuators(void *pvParameters)
   }
 }
 
-static float sqrt_func(float error){
-  const float tolerance = 5;
-  if (abs(error)< tolerance){
-    return 0;
-  }
-  
-  if (error < 0){
-    return sqrt(abs(error)-tolerance) * -1.0;
-  }else{
-   return sqrt(abs(error)-tolerance);
-  }
-}
+//static float sqrt_func(float error){
+//  const float tolerance = 5;
+//  if (abs(error)< tolerance){
+//    return 0;
+//  }
+//  
+//  if (error < 0){
+//    return sqrt(abs(error)-tolerance) * -1.0;
+//  }else{
+//   return sqrt(abs(error)-tolerance);
+//  }
+//}
 float pid_value(direction_type_e &dir, float &error) {
   const float Ki = 0;
   const float Kd = 0;
-  const float Kp = 2.0; //13
+  const float Kp = 2.0;
   static float prev_error = 0;
   
   static uint32_t prev_time = millis() - 5;
@@ -144,7 +124,10 @@ float pid_value(direction_type_e &dir, float &error) {
     return Kp_term + Kd_term;
   }
   else if (dir == BACKWARD) {
-    return /*Ki * error * time_diff * (-1) + Kp * error*/0;
+    prev_error = error;
+    prev_time = curr_time;
+    return Kp_term + Kd_term;
+    
   } else {
     return 0;
   }
@@ -175,6 +158,7 @@ void run_motors(uint8_t spd, direction_type_e dir, float motor_diff, float &erro
   const float left_offset = 0;
   const float right_offset = 0;
 
+  if error
   float left_speed = (float)spd + motor_diff; //- abs(error) * 0.7;
   float right_speed = (float)spd - motor_diff; //- abs(error) * 0.7;
 
@@ -253,9 +237,6 @@ void set_motor_right(int &PWM) {
 }
 
 void send_to_stepper(int desSteps) {
-  //Serial.print("Msg Sent to Stepper: ");
-  //Serial.println(desSteps);
-
   msg_union msg;
   msg.stepper_message.type = MSG_STEPPER;
   msg.stepper_message.steps = desSteps;
