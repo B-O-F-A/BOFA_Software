@@ -1,3 +1,4 @@
+
 void read_colour_sensors(colour_type_e (&prev_payload)[TOT_NUM_I2C - 1], float (&data)[TOT_NUM_I2C - 1][3]);
 
 void process_data(colour_type_e (&new_payload)[TOT_NUM_I2C - 1], float (&data)[TOT_NUM_I2C - 1][3]);
@@ -151,9 +152,9 @@ void setup_colour_sensors() {
 void read_colour_sensors(colour_type_e (&prev_payload)[TOT_NUM_I2C - 1], float (&data)[TOT_NUM_I2C - 1][3]) {
   for (int i = 0; i < (TOT_NUM_I2C - 1); i++) { // get all colors
 
-    xSemaphoreTake(mutex, portMAX_DELAY);
+    
     get_colour(i, data);
-    xSemaphoreGive(mutex);
+    
 
   }
 
@@ -171,8 +172,21 @@ void read_colour_sensors(colour_type_e (&prev_payload)[TOT_NUM_I2C - 1], float (
     //Serial.print(new_payload[i]); Serial.print(" ");
 
   }
+  
   //Serial.println(" ");
-
+  xSemaphoreTake(mutex, portMAX_DELAY);
+  for(int i = 0; i < 3; i++){
+  red_values[i] = data[i][0];
+  }
+  xSemaphoreGive(mutex);
+  
+  if (DEBUG_ENABLED && DEBUG_TCS_ENABLED){
+  Serial.print("Colour Diff (1-0) (2-1): ");
+  Serial.print(red_values[1] - red_values[0]);
+  Serial.print(" ");
+  Serial.println(red_values[2] - red_values[1]);
+  }
+  
   if (send_payload) {
     send_colour_to_controller(new_payload);
   }
@@ -239,19 +253,20 @@ void get_colour(int sensorNum, float (&data)[TOT_NUM_I2C - 1][3]) {
   data[sensorNum][0] = final_red;
   data[sensorNum][1] = final_green;
   data[sensorNum][2] = final_blue;
-
-  if (DEBUG_ENABLED && DEBUG_TCS_ENABLED) {
-    //if (sensorNum == 2) {
-      Serial.print("COLOUR_IMU: READING Sensor: ");
-      Serial.println(sensorNum);
-      Serial.print ("COLOUR_IMU: ");
-      Serial.print(" R: "); Serial.print(data[sensorNum][0], DEC); Serial.print(" ");
-      Serial.print("G: "); Serial.print(data[sensorNum][1], DEC); Serial.print(" ");
-      Serial.print("B: "); Serial.print(data[sensorNum][2], DEC); Serial.print(" "); Serial.print(c);
-      Serial.println("");
-      Serial.println("-------------------");
-    
-  }
+  
+  
+//  if (DEBUG_ENABLED && DEBUG_TCS_ENABLED) {
+//    if (sensorNum == 2 || sensorNum == 0 || sensorNum == 1) {
+//      Serial.print("COLOUR_IMU: READING Sensor: ");
+//      Serial.println(sensorNum);
+//      Serial.print ("COLOUR_IMU: ");
+//      Serial.print(" R: "); Serial.print(data[sensorNum][0], DEC); Serial.print(" ");
+//      Serial.print("G: "); Serial.print(data[sensorNum][1], DEC); Serial.print(" ");
+//      Serial.print("B: "); Serial.print(data[sensorNum][2], DEC); Serial.print(" "); Serial.print(c);
+//      Serial.println("");
+//      Serial.println("-------------------");
+//  }
+//  }
 }
 
 void send_colour_to_controller(colour_type_e colour_vals[TOT_NUM_I2C - 1]) {

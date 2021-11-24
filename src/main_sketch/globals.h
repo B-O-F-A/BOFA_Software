@@ -5,7 +5,7 @@
 #define off false
 
 #define DEBUG_ENABLED off
-#define DEBUG_ACTUATORS_ENABLED off
+#define DEBUG_ACTUATORS_ENABLED on
 #define DEBUG_IMU_ENABLED off
 #define DEBUG_TCS_ENABLED off
 
@@ -28,6 +28,7 @@ Adafruit_TCS34725 tcs[] = {Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_2_4MS, TCS
                            Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_2_4MS, TCS34725_GAIN_4X)
                           };
 const float COLOUR_THRESH = 20;
+float red_values[3]  = {0, 0, 0};
 
 //BreakBeam Pin
 const int beamPin = 20;

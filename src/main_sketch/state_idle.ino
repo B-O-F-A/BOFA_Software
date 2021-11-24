@@ -7,7 +7,7 @@ state_e state_idle(msg_union &msg) {
   motor_msg.spd = 40;
   motor_msg.error = 0;
   motor_msg.dir = FORWARD;
-  xQueueSend(actuators_Mailbox, &motor_msg, 0);
+  //xQueueSend(actuators_Mailbox, &motor_msg, 0);
 
   vTaskDelay(pdMS_TO_TICKS(500));
   //return STATE_IDLE;

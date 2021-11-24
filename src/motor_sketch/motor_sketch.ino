@@ -5,8 +5,9 @@ int motor2pin1 = 11;
 int motor2pin2 = 12;
 int enA = 8;
 int enB = 13;
-int spdL =102 + 13;
-int spdR = 102;
+
+int spdL =128;
+int spdR = 128;
 
 void setup() {
   // put your setup code here, to run once:

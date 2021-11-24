@@ -35,7 +35,7 @@ state_e state_search(msg_union &msg) {
 
             Serial.print(colour_message->colour[i]); Serial.print(" ");
           }
-          Serial.println(" --------------------------------- ");
+          Serial.println(" --- ");
         }
 
         for (int i = 0; i < (TOT_NUM_I2C - 1); i++) {
