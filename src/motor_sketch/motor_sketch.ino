@@ -6,7 +6,7 @@ int motor2pin2 = 12;
 int enA = 8;
 int enB = 13;
 
-int spdL =128;
+int spdL = 128;
 int spdR = 128;
 
 void setup() {
@@ -28,8 +28,8 @@ void loop() {
   analogWrite(enB, spdL); //ENB pin
 
   //Controlling spin direction of motors:
-  digitalWrite(motor1pin1, HIGH);
-  digitalWrite(motor1pin2, LOW);
+  digitalWrite(motor1pin1, LOW);
+  digitalWrite(motor1pin2, HIGH);
 
   digitalWrite(motor2pin1, HIGH);
   digitalWrite(motor2pin2, LOW);

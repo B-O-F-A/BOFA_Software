@@ -3,14 +3,16 @@ state_e state_idle(msg_union &msg) {
   //May need to add timer if we want to switch to search state
   //after some time instead of instantly.
 
-  //  motor_message_t motor_msg;
-  //  motor_msg.type = MSG_MOTOR;
-  //  motor_msg.spd = 30;
-  //  motor_msg.error = 0;
-  //  motor_msg.dir = FORWARD;
-  //  xQueueSend(actuators_Mailbox, &motor_msg, 0);
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
-  vTaskDelay(pdMS_TO_TICKS(1000));
+    motor_message_t motor_msg;
+    motor_msg.type = MSG_MOTOR;
+    motor_msg.spd = 80;
+    motor_msg.error = 0;
+    motor_msg.dir = FORWARD;
+    xQueueSend(actuators_Mailbox, &motor_msg, 0);
+
+  
   static bool ultrasound_switch = false;
 //
 //  if (xQueueReceive(controller_Mailbox, &msg, 0) == pdPASS ) {

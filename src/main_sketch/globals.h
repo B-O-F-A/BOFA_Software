@@ -5,9 +5,9 @@
 #define off false
 
 #define DEBUG_ENABLED off
-#define DEBUG_ACTUATORS_ENABLED off
+#define DEBUG_ACTUATORS_ENABLED on
 #define DEBUG_IMU_ENABLED off
-#define DEBUG_TCS_ENABLED on
+#define DEBUG_TCS_ENABLED off
 
 //includes
 #include <Arduino_FreeRTOS.h>

@@ -10,18 +10,17 @@
 
 state_e state_search(msg_union &msg) {
   static colour_type_e tcs_sen[5] = {COLOUR_NONE, COLOUR_NONE, COLOUR_NONE, COLOUR_NONE, COLOUR_NONE};
-  motor_message_t motor_msg;
+  static motor_message_t motor_msg;
   static uint32_t prev_time = millis();
   uint32_t curr_time = millis();
 
-  const float AVG_SPEED = 35.0;
-  const float SLOW_SPEED = 25.0;
-  const float AVG_SPEED_ROT = 30.0;
+  const float AVG_SPEED = 80;
+  const float SLOW_SPEED = 60;
+  const float AVG_SPEED_ROT = 60;
 
   motor_msg.type = MSG_MOTOR;
   motor_msg.spd = AVG_SPEED;
   motor_msg.dir = DIRECTION_NONE;
-  motor_msg.error = 0;
 
   if (xQueueReceive(controller_Mailbox, &msg, 0) == pdPASS ) {
     switch (msg.generic_message.type) {
@@ -46,12 +45,26 @@ state_e state_search(msg_union &msg) {
         if (tcs_sen[LEFT_AUX_COL] == RED) {
           motor_msg.dir = LEFT;
           motor_msg.type = MSG_MOTOR;
+          motor_msg.error = -1;
         }
 
         else if (tcs_sen[RIGHT_AUX_COL] == RED) {
           motor_msg.dir = RIGHT;
           motor_msg.type = MSG_MOTOR;
+          motor_msg.error = 1;
         }
+        else if (tcs_sen[MID_COL] == RED){
+          motor_msg.dir = RIGHT;
+          motor_msg.type = MSG_MOTOR;
+          motor_msg.error = 0;
+        }
+        else if (tcs_sen[LEFT_AUX_COL] == BLUE && tcs_sen[RIGHT_AUX_COL] == BLUE) {
+          motor_msg.dir = STOP;
+          motor_msg.type = MSG_MOTOR;
+          motor_msg.spd = 0;
+          
+        }
+        
         else{
           motor_msg.dir = FORWARD;
           motor_msg.type = MSG_MOTOR;

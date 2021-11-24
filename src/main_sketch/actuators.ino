@@ -2,6 +2,7 @@
 float pid_value(direction_type_e &dir, int8_t &error);
 void run_motors(uint8_t spd, direction_type_e dir, float motor_diff);
 void pxMotorTimerCallback (TimerHandle_t xTimer);
+
 void actuators(void *pvParameters)
 {
   (void) pvParameters;
@@ -54,16 +55,16 @@ void actuators(void *pvParameters)
     xSemaphoreGive(mutex);
 
 
-    if (DEBUG_ENABLED && DEBUG_ACTUATORS_ENABLED) {
-      Serial.print("Left_mid: ");
-      Serial.print(left_mid);
-      Serial.print(" right: ");
-      Serial.println(right_mid);
-
-      Serial.print("Colour_error: ");
-      Serial.println(colour_error);
-
-    }
+//    if (DEBUG_ENABLED && DEBUG_ACTUATORS_ENABLED) {
+//      Serial.print("Left_mid: ");
+//      Serial.print(left_mid);
+//      Serial.print(" right: ");
+//      Serial.println(right_mid);
+//
+//      Serial.print("Colour_error: ");
+//      Serial.println(colour_error);
+//
+//    }
 
     //colour_error = sqrt_func(colour_error);
 
@@ -73,16 +74,35 @@ void actuators(void *pvParameters)
     
     float motor_diff;
 
-    motor_diff = pid_value(motor_msg.dir, colour_error);
+    
 
     const float MAX_TURN_SPD = 30;
+    
+    
 
-//    if (abs(colour_error) > 20) {
-//      motor_msg.spd = 0;
-//    }
+    /*
+    if (abs(colour_error) > GLOBAL_ERROR_THRESH) {
+      motor_msg.spd = 0;
+      if (abs(motor_diff) < 20){
+        
+        if (motor_diff < 0.0){
+          motor_diff = 20.0 * -1.0;
+        } else{
+          motor_diff = 20.0; 
+        }
+      }
+      
+    }
+    */
 
-    motor_diff = (motor_diff <= MAX_TURN_SPD) ? motor_diff : MAX_TURN_SPD;
-    motor_diff = (motor_diff >= -MAX_TURN_SPD) ? motor_diff : -MAX_TURN_SPD;
+    motor_diff = pid_value(motor_msg.dir, colour_error, msg.motor_message.error);
+    
+    //motor_diff = (motor_diff <= MAX_TURN_SPD) ? motor_diff : MAX_TURN_SPD;
+    //motor_diff = (motor_diff >= -MAX_TURN_SPD) ? motor_diff : -MAX_TURN_SPD;
+
+    if(motor_diff+motor_msg.spd > 100){
+      motor_msg.spd = 100 - motor_diff;
+    }
 
     
     run_motors(motor_msg.spd, motor_msg.dir, motor_diff, colour_error);
@@ -104,34 +124,47 @@ void actuators(void *pvParameters)
 //   return sqrt(abs(error)-tolerance);
 //  }
 //}
-float pid_value(direction_type_e &dir, float &error) {
-  const float Ki = 0;
+float pid_value(direction_type_e &dir, float &colour_error, int8_t error) {
+  const float Ki = 0.0;
   const float Kd = 0.0;
-  const float Kp = 0.8;
+  const float Kp = 1;
+  const float Ke = 20;
   static float prev_error = 0;
-
+  static float I_error = 0;
   static uint32_t prev_time = millis() - 5;
   uint32_t curr_time = millis();
-
   float time_diff = curr_time - prev_time;
 
-  float derivative = (error - prev_error) / time_diff;
+  float derivative = (colour_error - prev_error) / time_diff;
 
   float Kd_term = derivative * Kd * -1.0;
-  float Kp_term = error * Kp;
+  float Kp_term = colour_error * Kp;
+  float Ki_term;
+
+  if (colour_error <= 10){
+    I_error = 0;
+  }
+  else{
+    I_error += colour_error * time_diff;
+  }
+
+  Ki_term = I_error*Ki;
+  
   if (DEBUG_ENABLED && DEBUG_ACTUATORS_ENABLED) {
-  Serial.print("Kp_term: "); Serial.println(Kp_term);
-  Serial.print("Kd_term: "); Serial.println(Kd_term);
+  Serial.print("Kp_term: "); Serial.print(Kp_term);
+  Serial.print(" Kd_term: "); Serial.print(Kd_term);
+  Serial.print(" Ki_term: "); Serial.print(Ki_term);
+  Serial.println("-------------");
   }
   if (dir == FORWARD) {
-    prev_error = error;
+    prev_error = colour_error;
     prev_time = curr_time;
-    return Kp_term + Kd_term;
+    return Kp_term + Kd_term+ Ki_term + error*Ke;
   }
   else if (dir == BACKWARD) {
-    prev_error = error;
+    prev_error = colour_error;
     prev_time = curr_time;
-    return Kp_term + Kd_term;
+    return Kp_term + Kd_term + Ki_term + error*Ke;
 
   } else {
     return 0;
@@ -144,28 +177,28 @@ float left_motor_offset(float spd) {
 
 }
 
-static const float MAX_SPEED = 50.0;
+static const float MAX_SPEED = 100.0;
 
 void run_motors(uint8_t spd, direction_type_e dir, float motor_diff, float &error) {
   static int motor_counter = 0;
   static bool turn_rec = false;
   
-    if (dir != FORWARD) {
-      motor_counter = 0;
-      turn_rec = true;
-    }
-    else if (dir == FORWARD) {
-      if (motor_counter > 100) {
-        turn_rec = false;
-      } else {
-        motor_counter ++;
-      }
-
-    }
-
-  if (turn_rec){
-    spd = 30;
-  }
+//    if (dir != FORWARD) {
+//      motor_counter = 0;
+//      turn_rec = true;
+//    }
+//    else if (dir == FORWARD) {
+//      if (motor_counter > 100) {
+//        turn_rec = false;
+//      } else {
+//        motor_counter ++;
+//      }
+//
+//    }
+//
+//  if (turn_rec){
+//    spd = 30;
+//  }
   
   const float left_offset = 0;
   const float right_offset = 0;
@@ -212,15 +245,15 @@ void run_motors(uint8_t spd, direction_type_e dir, float motor_diff, float &erro
       break;
 
     case LEFT:
-      PWM_L = 65;
-      PWM_R = 65;
+      PWM_L = 128;
+      PWM_R = 128;
       set_motor_left_backward();
       set_motor_right_forward();
       break;
 
     case RIGHT:
-      PWM_L = 65;
-      PWM_R = 65;
+      PWM_L = 128;
+      PWM_R = 128;
       set_motor_left_forward();
       set_motor_right_backward();
       break;
@@ -272,35 +305,35 @@ void bofa_analogWrite(int pin, int PWM_Signal) {
       Serial.print(" Speed: ");
       Serial.println(motor_speed);
     }
-  }
-  else {
+  }else{
     analogWrite(pin, PWM_Signal);
   }
+    
 }
 
 void set_motor_right_forward() {
-  if (DEBUG_ENABLED && DEBUG_ACTUATORS_ENABLED) {
+  if (DEBUG_ENABLED && DEBUG_ACTUATORS_ENABLED & 0) {
     Serial.println("Actuators: Move RIGHT Forward ------");
   }
   digitalWrite(in1A, HIGH);
   digitalWrite(in2A, LOW);
 }
 void set_motor_right_backward() {
-  if (DEBUG_ENABLED && DEBUG_ACTUATORS_ENABLED) {
+  if (DEBUG_ENABLED && DEBUG_ACTUATORS_ENABLED &0) {
     Serial.println("Actuators: Move RIGHT Backward ------");
   }
   digitalWrite(in1A, LOW);
   digitalWrite(in2A, HIGH);
 }
 void set_motor_left_forward() {
-  if (DEBUG_ENABLED && DEBUG_ACTUATORS_ENABLED) {
+  if (DEBUG_ENABLED && DEBUG_ACTUATORS_ENABLED &0) {
     Serial.println("Actuators: Move LEFT Forward ------");
   }
   digitalWrite(in1B, HIGH);
   digitalWrite(in2B, LOW);
 }
 void set_motor_left_backward() {
-  if (DEBUG_ENABLED && DEBUG_ACTUATORS_ENABLED) {
+  if (DEBUG_ENABLED && DEBUG_ACTUATORS_ENABLED &0) {
     Serial.println("Actuators: Move LEFT Backward ------");
   }
   digitalWrite(in1B, LOW);

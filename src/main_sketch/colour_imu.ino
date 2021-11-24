@@ -44,7 +44,7 @@ void colour_imu(void *pvParameters)
 
           desired_angle = imu_command_message->yaw;
 
-          if (DEBUG_ENABLED) {
+          if (DEBUG_ENABLED && DEBUG_TCS_ENABLED) {
             Serial.print("COLOUR_IMU: Received Angle: ");
             Serial.println(desired_angle);
           }
