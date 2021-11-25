@@ -5,8 +5,8 @@
 #define off false
 
 #define DEBUG_ENABLED off
-#define DEBUG_ACTUATORS_ENABLED on
-#define DEBUG_MOTOR_DIR on
+#define DEBUG_ACTUATORS_ENABLED off
+#define DEBUG_MOTOR_DIR off
 #define DEBUG_IMU_ENABLED off
 #define DEBUG_TCS_ENABLED off
 
@@ -130,6 +130,9 @@ typedef enum {
   BACKWARD,
   LEFT,
   RIGHT,
+  LEFT_SLOW,
+  RIGHT_SLOW,
+  FORWARD_SLOW,
 
   //add direction types before this enum
   TOT_NUM_DIR
@@ -217,6 +220,10 @@ void actuators( void *pvParameters );
 void stepper( void *pvParameters );
 void ultrasonic( void *pvParameters );
 void colour_imu( void *pvParameters );
+
+void backup_robot(int delay_time, float speed_val);
+void turn_left_robot_slow(int delay_time);
+void turn_right_robot_slow(int delay_time);
 
 static QueueHandle_t controller_Mailbox;
 static QueueHandle_t actuators_Mailbox;

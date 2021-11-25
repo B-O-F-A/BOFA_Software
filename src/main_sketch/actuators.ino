@@ -68,39 +68,11 @@ void actuators(void *pvParameters)
     //
     //    }
 
-    //colour_error = sqrt_func(colour_error);
-
-    //    Serial.print("Colour_error_filtered: ");
-    //    Serial.println(colour_error);
-
 
     float motor_diff;
 
 
-
-    const float MAX_TURN_SPD = 30;
-
-
-
-    /*
-      if (abs(colour_error) > GLOBAL_ERROR_THRESH) {
-      motor_msg.spd = 0;
-      if (abs(motor_diff) < 20){
-
-        if (motor_diff < 0.0){
-          motor_diff = 20.0 * -1.0;
-        } else{
-          motor_diff = 20.0;
-        }
-      }
-
-      }
-    */
-
     motor_diff = pid_value(motor_msg.dir, colour_error, motor_msg.error);
-
-    //motor_diff = (motor_diff <= MAX_TURN_SPD) ? motor_diff : MAX_TURN_SPD;
-    //motor_diff = (motor_diff >= -MAX_TURN_SPD) ? motor_diff : -MAX_TURN_SPD;
 
     if (motor_diff + motor_msg.spd > 100) {
       motor_msg.spd = 100 - motor_diff;
@@ -114,18 +86,6 @@ void actuators(void *pvParameters)
   }
 }
 
-//static float sqrt_func(float error){
-//  const float tolerance = 5;
-//  if (abs(error)< tolerance){
-//    return 0;
-//  }
-//
-//  if (error < 0){
-//    return sqrt(abs(error)-tolerance) * -1.0;
-//  }else{
-//   return sqrt(abs(error)-tolerance);
-//  }
-//}
 float pid_value(direction_type_e &dir, float &colour_error, int8_t error) {
   const float Ki = 0.0;
   const float Kd = 0.0;
@@ -167,12 +127,13 @@ float pid_value(direction_type_e &dir, float &colour_error, int8_t error) {
     prev_time = curr_time;
     return Kp_term + Kd_term + Ki_term + error * Ke;
   }
-  else if (dir == BACKWARD) {
-    prev_error = colour_error;
-    prev_time = curr_time;
-    return (Kp_term + Kd_term + Ki_term + error * Ke);//* (-1.0);
-
-  } else {
+//  else if (dir == BACKWARD) {
+//    prev_error = colour_error;
+//    prev_time = curr_time;
+//    return (Kp_term + Kd_term + Ki_term + error * Ke);//* (-1.0);
+//
+//  } 
+  else {
     return 0;
   }
 
@@ -189,36 +150,11 @@ void run_motors(uint8_t spd, direction_type_e dir, float motor_diff, float &erro
   static int motor_counter = 0;
   static bool turn_rec = false;
 
-  //    if (dir != FORWARD) {
-  //      motor_counter = 0;
-  //      turn_rec = true;
-  //    }
-  //    else if (dir == FORWARD) {
-  //      if (motor_counter > 100) {
-  //        turn_rec = false;
-  //      } else {
-  //        motor_counter ++;
-  //      }
-  //
-  //    }
-  //
-  //  if (turn_rec){
-  //    spd = 30;
-  //  }
-
   const float left_offset = 0;
   const float right_offset = 0;
 
-  float left_speed = (float)spd + motor_diff; //- abs(error) * 0.7;
-  float right_speed = (float)spd - motor_diff; //- abs(error) * 0.7;
-
-  /*
-    if (turn_rec && error == 0) {
-      left_speed -=15;
-      right_speed -= 15;
-    }
-  */
-  //left_speed = left_speed + left_motor_offset(left_speed);
+  float left_speed = (float)spd + motor_diff;
+  float right_speed = (float)spd - motor_diff;
 
   left_speed = (left_speed <= MAX_SPEED) ? left_speed : MAX_SPEED;
   right_speed = (right_speed <= MAX_SPEED) ? right_speed : MAX_SPEED;
@@ -265,6 +201,28 @@ void run_motors(uint8_t spd, direction_type_e dir, float motor_diff, float &erro
       set_motor_left_forward();
       set_motor_right_backward();
       break;
+
+      case LEFT_SLOW:
+      PWM_L = 65;
+      PWM_R = 65;
+      set_motor_left_backward();
+      set_motor_right_forward();
+      break;
+
+    case RIGHT_SLOW:
+      PWM_L = 65;
+      PWM_R = 65;
+      set_motor_left_forward();
+      set_motor_right_backward();
+      break;
+
+    case FORWARD_SLOW:
+      PWM_L = 50;
+      PWM_R = 50;
+      set_motor_left_forward();
+      set_motor_right_forward();
+      break;
+      
     default:
       Serial.print("Error: Actuator task recieved unknown direction type with direction: ");
       Serial.println(dir);

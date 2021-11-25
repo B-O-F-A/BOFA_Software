@@ -2,10 +2,11 @@
 
 // the setup function runs once when you press reset or power the board
 static void xBeamInterruptHandler(){
+  detachInterrupt(digitalPinToInterrupt(beamPin));
   msg_union msg;
   msg.ultrasonic_ack_message.type = MSG_ULTRASONIC_ACK;
   msg.ultrasonic_ack_message.john_in_range = true;
-  xQueueSend(controller_Mailbox, &msg, portMAX_DELAY);
+  xQueueSend(controller_Mailbox, &msg, portMAX_DELAY);        
 }
 
 void setup() {
@@ -26,7 +27,7 @@ void setup() {
   gate_servo.attach(servoPin);
   gate_servo.write(OPEN_SERVO_GATE);
   
-  attachInterrupt(digitalPinToInterrupt(beamPin), xBeamInterruptHandler, RISING);
+
   Wire.begin();
   delay(500);
   Serial.begin(9600);
@@ -82,4 +83,33 @@ void loop()
 {
   //Serial.println("Initiallizing Setup........");
   //taskYIELD();
+}
+
+//ULTILITY FUNCTIONS
+void backup_robot(int delay_time, float speed_val) {
+  motor_message_t motor_msg;
+  motor_msg.type = MSG_MOTOR;
+  motor_msg.spd = speed_val;
+  motor_msg.error = 0;
+  motor_msg.dir = BACKWARD;
+  xQueueSend(actuators_Mailbox, &motor_msg, 0);
+  delay(delay_time);
+}
+void turn_left_robot_slow(int delay_time) {
+  motor_message_t motor_msg;
+  motor_msg.type = MSG_MOTOR;
+  motor_msg.spd = 0;
+  motor_msg.error = -1;
+  motor_msg.dir = LEFT_SLOW;
+  xQueueSend(actuators_Mailbox, &motor_msg, 0);
+  delay(delay_time);
+}
+void turn_right_robot_slow(int delay_time) {
+  motor_message_t motor_msg;
+  motor_msg.type = MSG_MOTOR;
+  motor_msg.spd = 0;
+  motor_msg.error = 1;
+  motor_msg.dir = RIGHT_SLOW;
+  xQueueSend(actuators_Mailbox, &motor_msg, 0);
+  delay(delay_time);
 }

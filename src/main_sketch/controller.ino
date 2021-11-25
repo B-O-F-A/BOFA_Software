@@ -19,6 +19,7 @@ void controller(void *pvParameters)
 
   msg_union msg;
   state_e prev_state = TOT_NUM_STATES;
+  colour_type_e tcs_sen[5] = {COLOUR_NONE, COLOUR_NONE, COLOUR_NONE, COLOUR_NONE, COLOUR_NONE};
 
   for (;;)
   {
@@ -26,6 +27,10 @@ void controller(void *pvParameters)
       prev_state = CURR_STATE;
       if (DEBUG_ENABLED) {
         Serial.print("Controller: CURR_STATE = "); Serial.println(CURR_STATE);
+      }
+      if(prev_state == STATE_SLOW)
+      {
+        attachInterrupt(digitalPinToInterrupt(beamPin), xBeamInterruptHandler, RISING);
       }
     }
 
@@ -36,11 +41,12 @@ void controller(void *pvParameters)
         break;
 
       case STATE_SEARCH:
-        CURR_STATE = state_search(msg);
+        CURR_STATE = state_search(msg, tcs_sen);
         break;
 
       case STATE_SLOW:
-        //CURR_STATE = state_slow(msg);
+      
+        CURR_STATE = state_slow(msg, tcs_sen);
         break;
 
       case STATE_COLLECT:
@@ -48,7 +54,7 @@ void controller(void *pvParameters)
         break;
 
       case STATE_RETURN:
-        CURR_STATE = state_return(msg);
+        CURR_STATE = state_return(msg, tcs_sen);
         break;
 
       case STATE_DROPOFF:
