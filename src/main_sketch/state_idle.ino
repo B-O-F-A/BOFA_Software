@@ -9,7 +9,7 @@ state_e state_idle(msg_union &msg) {
     motor_msg.type = MSG_MOTOR;
     motor_msg.spd = 80;
     motor_msg.error = 0;
-    motor_msg.dir = FORWARD;
+    motor_msg.dir = BACKWARD;
     xQueueSend(actuators_Mailbox, &motor_msg, 0);
 
   
@@ -39,5 +39,6 @@ state_e state_idle(msg_union &msg) {
 //    }
 //  }
   //return STATE_IDLE;
-  return STATE_SEARCH;
+//  return STATE_SEARCH;
+  return STATE_RETURN;
 }

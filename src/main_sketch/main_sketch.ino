@@ -19,6 +19,7 @@ void setup() {
   //imu_ack_Mailbox = xQueueCreate(1, sizeof(msg_union));
   
   mutex = xSemaphoreCreateMutex();
+  mutexPrint = xSemaphoreCreateMutex();
   
   
   

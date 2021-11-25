@@ -6,6 +6,7 @@
 
 #define DEBUG_ENABLED off
 #define DEBUG_ACTUATORS_ENABLED on
+#define DEBUG_MOTOR_DIR on
 #define DEBUG_IMU_ENABLED off
 #define DEBUG_TCS_ENABLED off
 
@@ -226,6 +227,7 @@ static QueueHandle_t imu_command_Mailbox;
 //static QueueHandle_t imu_ack_Mailbox;
 
 static SemaphoreHandle_t mutex;
+static SemaphoreHandle_t mutexPrint;
 
 int initial_return_timer_delay = 1000;
 
