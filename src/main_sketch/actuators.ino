@@ -68,16 +68,19 @@ void actuators(void *pvParameters)
     //
     //    }
 
-
     float motor_diff;
 
 
     motor_diff = pid_value(motor_msg.dir, colour_error, motor_msg.error);
 
+    if (abs(motor_msg.error)){
+      motor_diff = (motor_diff <= 70) ? motor_diff : 70;
+       motor_diff = (motor_diff >= -70) ? motor_diff : -70;
+    }
+    
     if (motor_diff + motor_msg.spd > 100) {
       motor_msg.spd = 100 - motor_diff;
     }
-
 
     run_motors(motor_msg.spd, motor_msg.dir, motor_diff, colour_error);
     delay(timer_delay);
@@ -88,9 +91,13 @@ void actuators(void *pvParameters)
 
 float pid_value(direction_type_e &dir, float &colour_error, int8_t error) {
   const float Ki = 0.0;
-  const float Kd = 0.0;
-  const float Kp = 1.2;
-  const float Ke = 35;
+  const float Kd = 0;
+  float Kp = 1.6;
+  const float Ke = 45;
+  
+  if (CURR_STATE == STATE_SLOW) {
+    Kp = 1.0;
+  }
   static float prev_error = 0;
   static float I_error = 0;
   static uint32_t prev_time = millis() - 5;
@@ -126,13 +133,14 @@ float pid_value(direction_type_e &dir, float &colour_error, int8_t error) {
     prev_error = colour_error;
     prev_time = curr_time;
     return Kp_term + Kd_term + Ki_term + error * Ke;
+    
   }
-//  else if (dir == BACKWARD) {
-//    prev_error = colour_error;
-//    prev_time = curr_time;
-//    return (Kp_term + Kd_term + Ki_term + error * Ke);//* (-1.0);
-//
-//  } 
+  //  else if (dir == BACKWARD) {
+  //    prev_error = colour_error;
+  //    prev_time = curr_time;
+  //    return (Kp_term + Kd_term + Ki_term + error * Ke);//* (-1.0);
+  //
+  //  }
   else {
     return 0;
   }
@@ -202,9 +210,16 @@ void run_motors(uint8_t spd, direction_type_e dir, float motor_diff, float &erro
       set_motor_right_backward();
       break;
 
-      case LEFT_SLOW:
+    case LEFT_SLOW:
       PWM_L = 65;
       PWM_R = 65;
+      set_motor_left_backward();
+      set_motor_right_forward();
+      break;
+      
+    case LEFT_SLOW_SLOW:
+      PWM_L = 45;
+      PWM_R = 45;
       set_motor_left_backward();
       set_motor_right_forward();
       break;
@@ -222,7 +237,7 @@ void run_motors(uint8_t spd, direction_type_e dir, float motor_diff, float &erro
       set_motor_left_forward();
       set_motor_right_forward();
       break;
-      
+
     default:
       Serial.print("Error: Actuator task recieved unknown direction type with direction: ");
       Serial.println(dir);

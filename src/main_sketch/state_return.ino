@@ -13,7 +13,8 @@ state_e state_return(msg_union &msg, colour_type_e (&tcs_sen)[5]) {
 
   static bool NEED_DROPOFF = true;
 
-  const float AVG_SPEED = 80;
+  const float AVG_SPEED = 40;
+  const float AVG_SPEED_FAST = 40;
   const float SLOW_SPEED = 25;
   const float AVG_SPEED_ROT = 60;
 
@@ -46,8 +47,9 @@ state_e state_return(msg_union &msg, colour_type_e (&tcs_sen)[5]) {
         for (int i = 0; i < (TOT_NUM_I2C - 1); i++) {
           tcs_sen[i] = colour_message->colour[i];
         }
-        
-        if (tcs_sen[MID_COL] == RED && tcs_sen[LEFT_COL] == RED && tcs_sen[RIGHT_COL] == RED && tcs_sen[LEFT_AUX_COL] == RED && tcs_sen[RIGHT_AUX_COL] == RED && !NEED_DROPOFF) {
+
+         //if (tcs_sen[MID_COL] == RED && tcs_sen[LEFT_COL] == RED && tcs_sen[RIGHT_COL] == RED && tcs_sen[LEFT_AUX_COL] == RED && tcs_sen[RIGHT_AUX_COL] == RED && !NEED_DROPOFF) {
+        if (tcs_sen[LEFT_AUX_COL] == RED && tcs_sen[RIGHT_AUX_COL] == RED && !NEED_DROPOFF) {
           motor_msg.dir = STOP;
           motor_msg.type = MSG_MOTOR;
           motor_msg.error = 0;
@@ -89,11 +91,11 @@ state_e state_return(msg_union &msg, colour_type_e (&tcs_sen)[5]) {
 
           turn_left_robot_slow(1500);
  
-          motor_msg.dir = FORWARD_SLOW;
-          motor_msg.spd = 40;
-          motor_msg.error = 0;
-          xQueueSend(actuators_Mailbox, &motor_msg, 0);
-          delay(500);
+//          motor_msg.dir = FORWARD_SLOW;
+//          motor_msg.spd = 40;
+//          motor_msg.error = 0;
+//          xQueueSend(actuators_Mailbox, &motor_msg, 0);
+//          delay(600);
 
           motor_msg.dir = STOP;
           motor_msg.type = MSG_MOTOR;
@@ -104,9 +106,9 @@ state_e state_return(msg_union &msg, colour_type_e (&tcs_sen)[5]) {
 
           gate_servo.write(OPEN_SERVO_GATE);
           
-          backup_robot(700, SLOW_SPEED);
+          backup_robot(1000, SLOW_SPEED);
 
-          turn_right_robot_slow(1500);
+          turn_right_robot_slow(1000);
           
 //          motor_msg.dir = FORWARD;
 //          motor_msg.type = MSG_MOTOR;

@@ -179,7 +179,7 @@ void process_data(colour_type_e (&new_payload)[TOT_NUM_I2C - 1], float (&data)[T
       colour_val = RED;
     }
 
-    if ((g_r > COLOUR_THRESH) && (g_b > COLOUR_THRESH)) {
+    if ((g_r > COLOUR_THRESH_GREEN) && (g_b > COLOUR_THRESH_GREEN)) {
       colour_val = GREEN;
     }
 

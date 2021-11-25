@@ -74,16 +74,9 @@ state_e state_slow(msg_union &msg, colour_type_e (&tcs_sen)[5]) {
         delay(200);
         backup_robot(1000, SLOW_SPEED);
 
-        //center robot
-
-        motor_msg.dir = FORWARD;
-        motor_msg.spd = 0;
-        motor_msg.error = 0;
-        xQueueSend(actuators_Mailbox, &motor_msg, 0);
-
-        delay(1000);
 
         turn_left_robot_slow(1500);
+        //turn_left_robot_slow_slow(1500);
 
         TURNING_180 = true;
 

@@ -51,25 +51,45 @@ state_e state_search(msg_union &msg, colour_type_e (&tcs_sen)[5]) {
           motor_msg.dir = LEFT;
           motor_msg.type = MSG_MOTOR;
           motor_msg.error = -1;
+           xQueueSend(actuators_Mailbox, &motor_msg, 0);
         }
 
         else if (tcs_sen[RIGHT_AUX_COL] == RED) {
           motor_msg.dir = RIGHT;
           motor_msg.type = MSG_MOTOR;
           motor_msg.error = 1;
+           xQueueSend(actuators_Mailbox, &motor_msg, 0);
         }
         else if (tcs_sen[MID_COL] == RED) {
           motor_msg.dir = FORWARD;
           motor_msg.type = MSG_MOTOR;
           motor_msg.error = 0;
+           xQueueSend(actuators_Mailbox, &motor_msg, 0);
         }
         else {
           motor_msg.dir = FORWARD;
           motor_msg.type = MSG_MOTOR;
           motor_msg.spd = AVG_SPEED;
+           xQueueSend(actuators_Mailbox, &motor_msg, 0);
         }
 
-        if (tcs_sen[LEFT_AUX_COL] == BLUE && tcs_sen[RIGHT_AUX_COL] == BLUE) {
+        //        if (tcs_sen[LEFT_AUX_COL] == BLUE && tcs_sen[RIGHT_AUX_COL] == BLUE) {
+        //          motor_msg.dir = STOP;
+        //          motor_msg.type = MSG_MOTOR;
+        //          motor_msg.spd = 0;
+        //          motor_msg.error = 0;
+        //          xQueueSend(actuators_Mailbox, &motor_msg, 0);
+        //          delay(200);
+        //          motor_msg.dir = FORWARD;
+        //          motor_msg.type = MSG_MOTOR;
+        //          motor_msg.spd = SLOW_SPEED;
+        //          motor_msg.error = 0;
+        //          xQueueSend(actuators_Mailbox, &motor_msg, 0);
+        //          return STATE_SLOW;
+        //
+        //        }
+        
+        if ((tcs_sen[LEFT_COL] == BLUE && tcs_sen[RIGHT_COL] == BLUE) || (tcs_sen[MID_COL] == BLUE && tcs_sen[RIGHT_COL] == BLUE) || (tcs_sen[LEFT_COL] == BLUE && tcs_sen[MID_COL] == BLUE)) {
           motor_msg.dir = STOP;
           motor_msg.type = MSG_MOTOR;
           motor_msg.spd = 0;
@@ -85,7 +105,7 @@ state_e state_search(msg_union &msg, colour_type_e (&tcs_sen)[5]) {
 
         }
 
-        xQueueSend(actuators_Mailbox, &motor_msg, 0);
+       
 
         break;
 

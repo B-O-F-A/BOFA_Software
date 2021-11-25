@@ -104,6 +104,15 @@ void turn_left_robot_slow(int delay_time) {
   xQueueSend(actuators_Mailbox, &motor_msg, 0);
   delay(delay_time);
 }
+void turn_left_robot_slow_slow(int delay_time) {
+  motor_message_t motor_msg;
+  motor_msg.type = MSG_MOTOR;
+  motor_msg.spd = 0;
+  motor_msg.error = -1;
+  motor_msg.dir = LEFT_SLOW_SLOW;
+  xQueueSend(actuators_Mailbox, &motor_msg, 0);
+  delay(delay_time);
+}
 void turn_right_robot_slow(int delay_time) {
   motor_message_t motor_msg;
   motor_msg.type = MSG_MOTOR;
