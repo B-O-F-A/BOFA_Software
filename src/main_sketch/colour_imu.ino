@@ -211,6 +211,7 @@ void chooseBus(uint8_t bus) {
 }
 
 void setup_colour_sensors() {
+  xSemaphoreTake(mutexColoursInit, portMAX_DELAY);
   for (int i = 0; i < TOT_NUM_I2C - 1; i++) {
     Serial.println(i);
     chooseBus(i);
@@ -218,7 +219,8 @@ void setup_colour_sensors() {
       Serial.print("Found sensor "); Serial.println(i);
     } else {
       Serial.println("No Sensor Found");
-      while (true);
+      for (;;){};
     }
   }
+  xSemaphoreGive(mutexColoursInit);
 }

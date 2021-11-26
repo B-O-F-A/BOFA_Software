@@ -237,6 +237,7 @@ static QueueHandle_t imu_command_Mailbox;
 
 static SemaphoreHandle_t mutex;
 static SemaphoreHandle_t mutexPrint;
+static SemaphoreHandle_t mutexColoursInit;
 
 int initial_return_timer_delay = 1000;
 

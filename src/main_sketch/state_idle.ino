@@ -5,6 +5,9 @@ state_e state_idle(msg_union &msg) {
 
     vTaskDelay(pdMS_TO_TICKS(1000));
 
+    xSemaphoreTake(mutexColoursInit, portMAX_DELAY);
+    xSemaphoreGive(mutexColoursInit);
+    
     motor_message_t motor_msg;
     motor_msg.type = MSG_MOTOR;
     motor_msg.spd = 80;

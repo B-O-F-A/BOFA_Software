@@ -37,9 +37,11 @@ void actuators(void *pvParameters)
       switch (msg.generic_message.type) {
         case MSG_MOTOR:   //motor control port
           motor_msg = msg.motor_message;
-          xSemaphoreTake(mutexPrint, portMAX_DELAY);
-          Serial.print("------------"); Serial.print("Actuators: "); Serial.println(motor_msg.error);
-          xSemaphoreGive(mutexPrint);
+          if (DEBUG_ENABLED && DEBUG_ACTUATORS_ENABLED) {
+            xSemaphoreTake(mutexPrint, portMAX_DELAY);
+            Serial.print("------------"); Serial.print("Actuators: "); Serial.println(motor_msg.error);
+            xSemaphoreGive(mutexPrint);
+          }
           break;
         default:
           Serial.print("Error: actuator task recieved unknown message type with type: ");

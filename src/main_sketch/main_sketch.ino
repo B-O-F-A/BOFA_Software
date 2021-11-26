@@ -21,6 +21,7 @@ void setup() {
   
   mutex = xSemaphoreCreateMutex();
   mutexPrint = xSemaphoreCreateMutex();
+  mutexColoursInit = xSemaphoreCreateMutex();
   
   
   
